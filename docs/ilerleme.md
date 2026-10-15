@@ -1,5 +1,14 @@
 # İlerleme günlüğü
 
+## 16 Ekim 2026 — Marka, gerçek iletişim ve canlı yayın
+
+- **Marka:** "Revnak Gayrimenkul" (K17). Yeni logo (altın ışıltı işareti), ikonlar ve paylaşım görseli; ilan no öneki `RVK-`.
+- **Gerçek bilgiler (K18):** telefon/WhatsApp 0542 311 58 88 (butonlar gerçek `wa.me` / `tel:` açar, ilan no'lu hazır mesajla), Instagram @talla.ks. Danışman iletişimi ofis hattına yönlenir; e-posta, adres ve yetki belgesi no örnek.
+- **Canlı (K19):** https://revnak-gayrimenkul.vercel.app — tüm sayfalar 200, olmayan sayfa 404, CDN önbellekli. Yeni sürüm: `npm run deploy`.
+- **Docker:** `docker-compose.yml` eklendi; Docker Desktop'ta `gayrimenkul-site` konteyneri, http://localhost:3050 (`restart: unless-stopped`).
+- **Not:** Formlar hâlâ kayıt/e-posta göndermez; gerçek bildirim için e-posta servisi (ör. Resend) bağlanmalı.
+
+
 Plan: `proje_plani.md` Bölüm 20 (demo sürümü). Durum işaretleri: ✅ bitti · 🔄 devam · ⏳ sırada.
 
 ## 16 Ekim 2026 — Demo sürümü ilk tur

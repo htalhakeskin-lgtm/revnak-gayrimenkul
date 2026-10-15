@@ -1021,6 +1021,10 @@ Kısıtlar: Yeni kütüphane ekleme. Mevcut tasarım token'larını kullan.
 Durum işaretleri: ✅ bitti · 🔄 devam ediyor · ⏳ sırada. Ayrıntılı ilerleme `docs/ilerleme.md`'dedir.
 
 ### 20.6 Vercel'e yayın adımları
+
+> **Canlı adres (K19):** https://revnak-gayrimenkul.vercel.app — Vercel projesi `talha-keskin/revnak-gayrimenkul`.
+> Yeni sürüm yayınlamak için: `npm run deploy` (Vercel CLI, giriş yapılmış hesapla). Otomatik dağıtım için aşağıdaki GitHub adımları önerilir.
+
 1. GitHub'da **özel** bir depo oluşturun ve kodu gönderin (`git push`).
 2. vercel.com → **Add New → Project** → depoyu seçin. Framework otomatik "Next.js" algılanır.
 3. Ortam değişkeni **gerekmez** → **Deploy**.
