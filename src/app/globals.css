@@ -1,0 +1,540 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Tasarım token'ları — proje_plani.md Bölüm 4.2–4.5
+   ------------------------------------------------------------------ */
+@theme {
+  /* Marka paleti */
+  --color-night: #0e1114;
+  --color-night-raised: #171b20;
+  --color-night-line: #2a2f36;
+  --color-ivory: #f5f1ea;
+  --color-sand: #eae3d7;
+  --color-ink: #15181c;
+  --color-gold: #c5a46d;
+  --color-gold-deep: #9c7c45;
+  --color-gold-ink: #7a5f32;
+  --color-muted: #9aa0a8;
+  --color-ink-muted: #5b6168;
+  --color-success: #2f7553;
+
+  /* Tipografi ölçeği (akışkan) */
+  --text-display: clamp(2.75rem, 1.6rem + 4.6vw, 5.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.005em;
+  --text-h1: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: -0.005em;
+  --text-h2: clamp(1.875rem, 1.45rem + 1.7vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: 0em;
+  --text-h3: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  --text-h3--line-height: 1.2;
+
+  /* Köşe yarıçapları */
+  --radius-sm: 6px;
+  --radius-card: 14px;
+  --radius-image: 20px;
+
+  /* Hareket */
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-cine: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --breakpoint-xs: 26rem;
+  --container-site: 82.5rem; /* 1320px */
+}
+
+/* next/font değişkenleri <html> üzerinde tanımlı; inline ile çözülür */
+@theme inline {
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  /* Ton (koyu/açık bölüm) duyarlı anlamsal renkler */
+  --color-bg: var(--tone-bg);
+  --color-fg: var(--tone-fg);
+  --color-fg-muted: var(--tone-muted);
+  --color-line: var(--tone-line);
+  --color-raised: var(--tone-raised);
+  --color-accent: var(--tone-accent);
+  --color-danger: var(--tone-danger);
+}
+
+:root {
+  --motion-fast: 150ms;
+  --motion-base: 300ms;
+  --motion-slow: 600ms;
+  --motion-scene: 1000ms;
+  --header-h: 76px;
+}
+
+/* Varsayılan ton: koyu vitrin */
+:root,
+.tone-dark {
+  --tone-bg: var(--color-night);
+  --tone-fg: var(--color-ivory);
+  --tone-muted: var(--color-muted);
+  --tone-line: var(--color-night-line);
+  --tone-raised: var(--color-night-raised);
+  --tone-accent: var(--color-gold);
+  --tone-danger: #f0907a;
+}
+
+/* Okuma ve yoğun veri alanları: sıcak kırık beyaz */
+.tone-light {
+  --tone-bg: var(--color-ivory);
+  --tone-fg: var(--color-ink);
+  --tone-muted: var(--color-ink-muted);
+  --tone-line: #dcd3c4;
+  --tone-raised: #ffffff;
+  --tone-accent: var(--color-gold-ink);
+  --tone-danger: #a3361f;
+}
+
+.tone-dark,
+.tone-light {
+  background-color: var(--tone-bg);
+  color: var(--tone-fg);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 16px);
+  }
+
+  body {
+    background-color: var(--color-night);
+    color: var(--color-ivory);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* fieldset varsayılanı min-width: min-content; yatay kaydırmalı içerik taşmasın */
+  fieldset {
+    min-width: 0;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-night);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .tone-light :focus-visible {
+    outline-color: var(--color-gold-ink);
+  }
+
+  /* Sayısal veriler hizalı dursun */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .container-site {
+    width: 100%;
+    max-width: var(--container-site);
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .container-site {
+      padding-inline: 24px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-site {
+      padding-inline: 40px;
+    }
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--tone-accent);
+  }
+
+  /* Koyu bölümlerde hafif film greni (Bölüm 4.2) */
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Fotoğrafın koyu zemine erimesi (sinematik maske) */
+  .fade-to-night {
+    background: linear-gradient(
+      180deg,
+      rgb(14 17 20 / 0.55) 0%,
+      rgb(14 17 20 / 0.1) 35%,
+      rgb(14 17 20 / 0.35) 65%,
+      rgb(14 17 20 / 0.96) 100%
+    );
+  }
+
+  .gold-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  }
+
+  /* Yatay kaydırma şeridi (sürükle/kaydır, JS'siz) */
+  .snap-strip {
+    display: grid;
+    grid-auto-flow: column;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .snap-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-strip > * {
+    scroll-snap-align: start;
+  }
+
+  /* Zengin metin (blog, ilan açıklaması) */
+  .prose-site {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--tone-fg);
+  }
+
+  .prose-site > * + * {
+    margin-top: 1.1em;
+  }
+
+  .prose-site h2:not(.not-prose *) {
+    font-size: var(--text-h3);
+    line-height: 1.25;
+    margin-top: 2em;
+  }
+
+  .prose-site h3:not(.not-prose *) {
+    font-size: 1.25rem;
+    margin-top: 1.6em;
+  }
+
+  .prose-site ul:not(.not-prose *) {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .prose-site ul > li:not(.not-prose *) {
+    position: relative;
+    padding-left: 1.5em;
+  }
+
+  .prose-site ul > li + li:not(.not-prose *) {
+    margin-top: 0.5em;
+  }
+
+  .prose-site ul > li:not(.not-prose *)::before {
+    content: "";
+    position: absolute;
+    left: 0.2em;
+    top: 0.75em;
+    width: 0.5em;
+    height: 1px;
+    background: var(--tone-accent);
+  }
+
+  .prose-site ol:not(.not-prose *) {
+    list-style: decimal;
+    padding-left: 1.4em;
+  }
+
+  .prose-site ol > li + li:not(.not-prose *) {
+    margin-top: 0.5em;
+  }
+
+  .prose-site a:not(.not-prose *) {
+    color: var(--tone-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prose-site blockquote:not(.not-prose *) {
+    border-left: 2px solid var(--tone-accent);
+    padding-left: 1.25em;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .prose-site strong:not(.not-prose *) {
+    font-weight: 700;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Animasyon yardımcıları — yalnızca transform ve opacity (Bölüm 4.5)
+   ------------------------------------------------------------------ */
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.12) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+/* Hero görsel döngüsü: taban görsel hep görünür (LCP), üstteki 3 görsel sırayla belirir */
+@keyframes hero-cycle {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.hero-slide {
+  opacity: 0;
+  animation: hero-cycle 24s linear infinite backwards;
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translate3d(0, -100%, 0);
+  }
+  100% {
+    transform: translate3d(0, 200%, 0);
+  }
+}
+
+.animate-scroll-cue {
+  animation: scroll-cue 2.2s var(--ease-cine) infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes word-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 105%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.split-word {
+  animation: word-up 1.1s var(--ease-out-expo) both;
+  animation-delay: var(--d, 0s);
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.marquee-pause:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+.animate-ken-burns {
+  animation: ken-burns 14s var(--ease-out-expo) both;
+}
+
+.animate-page-in {
+  animation: rise-in 600ms var(--ease-out-expo) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 400ms var(--ease-out-expo) both;
+}
+
+/* Sayfa geçişi: dolgu modu YOK. Animasyon bitince stacking context kalkar;
+   böylece sayfa içindeki sabit öğeler (ör. ilan alt çubuğu) z-index ile üste çıkabilir. */
+.page-fade {
+  animation: fade-in 450ms var(--ease-out-expo);
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2.4s var(--ease-out-expo) infinite;
+}
+
+/* Görseller yüklenince yumuşakça belirir */
+.img-fade {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out-expo);
+}
+
+.img-fade[data-loaded="true"] {
+  opacity: 1;
+}
+
+/* Hareketi azalt: büyük efektler kapanır, sadece solma kalır (Bölüm 4.5 kural 2) */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-ken-burns,
+  .animate-pulse-ring,
+  .animate-scroll-cue {
+    animation: none;
+  }
+
+  .hero-slide {
+    display: none;
+  }
+
+  .animate-page-in,
+  .split-word {
+    animation: fade-in 300ms linear both;
+    animation-delay: 0s;
+  }
+
+  .marquee-track {
+    overflow-x: auto;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Lenis (lenis/dist/lenis.css ile aynı) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Native dialog arka planı */
+dialog::backdrop {
+  background: rgb(8 10 12 / 0.72);
+  backdrop-filter: blur(6px);
+}
+
+dialog[open] {
+  animation: rise-in 300ms var(--ease-out-expo) both;
+}
+
+/* MapLibre: marka renkleri */
+.maplibregl-popup-content {
+  background: var(--color-night-raised) !important;
+  color: var(--color-ivory);
+  border: 1px solid var(--color-night-line);
+  border-radius: 14px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.45) !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: var(--color-night-raised) !important;
+  border-bottom-color: var(--color-night-raised) !important;
+}
+
+.maplibregl-popup-close-button {
+  color: var(--color-ivory);
+  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  right: 4px;
+  top: 4px;
+  border-radius: 999px;
+  background: rgb(14 17 20 / 0.6) !important;
+  z-index: 2;
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+}

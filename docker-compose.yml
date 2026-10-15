@@ -1,0 +1,14 @@
+# Yerel Docker çalıştırma (K16, K19). Vercel bu dosyayı kullanmaz.
+#   docker compose up -d --build   → http://localhost:3050
+#   docker compose down            → durdur ve kaldır
+# Docker Desktop'ta "gayrimenkul-site" adıyla görünür.
+name: gayrimenkul-site
+
+services:
+  web:
+    build: .
+    image: revnak-demo:latest
+    container_name: gayrimenkul-site
+    ports:
+      - "3050:3000"
+    restart: unless-stopped

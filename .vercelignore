@@ -1,0 +1,6 @@
+node_modules
+.next
+.gstack
+public/vendor
+coverage
+*.tsbuildinfo
