@@ -15,7 +15,7 @@ export function Inbox({ mock }: { mock: MockLead[] }) {
 
   return (
     <div className="grid gap-6 xl:grid-cols-5">
-      <section className="rounded-[20px] border border-line bg-raised p-6 xl:col-span-2" aria-labelledby="local-title">
+      <section className="rounded-[20px] border border-line bg-raised p-5 sm:p-6 xl:col-span-2" aria-labelledby="local-title">
         <div className="flex items-center justify-between gap-4">
           <h2 id="local-title" className="font-semibold">
             Sizin demo işlemleriniz
@@ -65,10 +65,27 @@ export function Inbox({ mock }: { mock: MockLead[] }) {
       </section>
 
       <section className="rounded-[20px] border border-line bg-raised xl:col-span-3" aria-labelledby="mock-title">
-        <h2 id="mock-title" className="p-6 pb-2 font-semibold">
+        <h2 id="mock-title" className="p-5 pb-2 font-semibold sm:p-6 sm:pb-2">
           Son talepler (örnek)
         </h2>
-        <div className="overflow-x-auto">
+        {/* Mobil: kart listesi */}
+        <ul className="divide-y divide-line md:hidden">
+          {mock.map((m) => (
+            <li key={m.id} className="px-5 py-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-semibold">{m.name}</p>
+                <span className="shrink-0 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold">{m.stage}</span>
+              </div>
+              <p className="mt-1 text-sm">{m.interest}</p>
+              <p className="mt-1 text-xs text-fg-muted">
+                {m.source} · {m.agent} · {m.when}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        {/* Masaüstü: tablo */}
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[620px] text-left text-sm">
             <thead className="text-xs text-fg-muted">
               <tr className="border-b border-line">

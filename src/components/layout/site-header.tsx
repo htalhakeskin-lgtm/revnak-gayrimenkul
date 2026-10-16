@@ -225,6 +225,13 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
           <ButtonLink href="/randevu" size="lg" className="mt-10 w-full" onClick={onClose}>
             Randevu al
           </ButtonLink>
+          <Link
+            href="/panel"
+            onClick={onClose}
+            className="mt-6 block text-center text-sm text-muted underline-offset-4 hover:text-gold hover:underline"
+          >
+            Ofis paneli (demo)
+          </Link>
         </nav>
       </div>
     </dialog>

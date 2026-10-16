@@ -47,6 +47,9 @@ npm run format     # Prettier
 - `animation-fill-mode: both/forwards` ile opacity/transform animasyonu kalıcı stacking context (transform'da ayrıca
   `fixed` için kapsayıcı blok) oluşturur. Sabit öğe içeren sarmalayıcılarda dolgu modu kullanma (`.page-fade`).
 - `<fieldset>` varsayılanı `min-width: min-content`; yatay kaydırmalı içerik taşar (globals.css'te sıfırlandı).
+- Izgara öğelerinin `min-width: auto` değeri geniş içerikle tüm sayfayı genişletir (iOS uzaklaştırır). globals.css'te
+  `:where(.grid) > * { min-width: 0 }` var; yeni yerleşimleri 360 px genişlikte taşma için tarayıcıda kontrol et.
+- Mobil: panelde tablolar kart listesine döner (`md:hidden` / `hidden md:block`); form yazısı dokunmatikte ≥ 16px.
 - `"use client"` modülündeki düz fonksiyonu sunucu bileşeninde çağırma (`src/lib/time.ts` gibi ortak modüle taşı).
 
 ## Tasarım kuralları (Bölüm 4)

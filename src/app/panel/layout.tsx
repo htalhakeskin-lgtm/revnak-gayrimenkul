@@ -1,7 +1,9 @@
-import { Bell, Search } from "lucide-react";
+import { ArrowUpRight, Bell, Search } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
-import { PanelNav } from "@/components/panel/panel-nav";
+import { LogoMark } from "@/components/layout/logo";
+import { PanelNav, PanelTabBar } from "@/components/panel/panel-nav";
 import { Photo } from "@/components/ui/photo";
 
 export const metadata: Metadata = {
@@ -11,18 +13,23 @@ export const metadata: Metadata = {
 
 /**
  * Ofis paneli vitrini (D-14, Bölüm 20.2). Örnek veriyle çalışır; giriş yoktur.
+ * Masaüstü: kenar menü. Mobil: koyu üst çubuk + alt sekme çubuğu.
  * Üretimde Payload admin + özel ekranlar (M10, M17) bunun yerini alır.
  */
 export default function PanelLayout({ children }: { children: ReactNode }) {
   return (
     <div className="tone-light min-h-dvh lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
-      <aside className="lg:sticky lg:top-0 lg:h-dvh">
+      <aside className="hidden lg:sticky lg:top-0 lg:block lg:h-dvh">
         <PanelNav />
       </aside>
       <div className="min-w-0">
-        <header className="flex items-center justify-between gap-4 border-b border-line bg-raised px-5 py-4 lg:px-10">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-raised/95 px-4 py-3 backdrop-blur-xl lg:static lg:px-10 lg:py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="hidden rounded-full bg-gold px-3 py-1 text-[0.6875rem] font-bold tracking-wider text-night uppercase lg:inline">
+            <Link href="/panel" className="flex items-center gap-2 lg:hidden" aria-label="Panel ana sayfa">
+              <LogoMark className="size-8 text-ink" />
+              <span className="font-serif text-lg tracking-[0.24em] uppercase">Revnak</span>
+            </Link>
+            <span className="rounded-full bg-gold px-2.5 py-0.5 text-[0.625rem] font-bold tracking-wider text-night uppercase lg:px-3 lg:py-1 lg:text-[0.6875rem]">
               Demo
             </span>
             <label className="relative hidden md:block">
@@ -35,7 +42,13 @@ export default function PanelLayout({ children }: { children: ReactNode }) {
               />
             </label>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 lg:gap-4">
+            <Link
+              href="/"
+              className="hidden items-center gap-1 text-sm text-fg-muted hover:text-accent sm:flex lg:hidden"
+            >
+              Siteye dön <ArrowUpRight size={14} />
+            </Link>
             <button type="button" className="relative grid size-10 place-items-center rounded-full hover:bg-sand" aria-label="Bildirimler (3 yeni)">
               <Bell size={18} />
               <span className="absolute top-2 right-2 size-2 rounded-full bg-danger" aria-hidden />
@@ -51,10 +64,11 @@ export default function PanelLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main id="icerik" className="px-5 py-8 lg:px-10 lg:py-10">
+        <main id="icerik" className="px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:py-10">
           {children}
         </main>
       </div>
+      <PanelTabBar />
     </div>
   );
 }

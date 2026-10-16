@@ -1,5 +1,13 @@
 # İlerleme günlüğü
 
+## 16 Ekim 2026 — Mobil uyum turu
+
+- **Kök neden:** CSS Grid öğelerinin varsayılan `min-width: auto` değeri; geniş içerik (14 günlük tarih şeridi, panel tabloları) kartı ve tüm sayfayı genişletiyordu (`/randevu` 1290 px, `/panel` 685 px). iOS Safari bu yüzden sayfayı uzaklaştırıyordu.
+- **Global düzeltmeler (`globals.css`):** ızgara öğelerine `min-width: 0`, kaydırmalı şeritlere `contain: inline-size`, `body { overflow-x: clip }` güvenlik ağı, bölüm başına `color-scheme` (iOS'ta siyah onay kutuları), dokunmatik cihazlarda form yazısı ≥ 16 px (iOS odak yakınlaştırması).
+- **Ofis paneli:** mobilde alt sekme çubuğu + sade üst çubuk; ilan ve talep tabloları kart listesine, CRM hunisi aşama seçicili listeye, takvim gün gün ajandaya dönüştü; pano kutuları 2 sütun.
+- **Site:** mobil filtre penceresi taslak + "Sonuçları göster" ile çalışıyor; randevu formu mobilde önce; çerez bandı kompakt; blog içindekiler mobilde katlanır; hesaplayıcılarda biçimli tutarlar; mobil menüde "Ofis paneli" bağlantısı.
+- **Doğrulama:** 31 sayfa, 360 ve 390 px genişlikte yatay taşma denetimi temiz; masaüstü düzeni korunuyor.
+
 ## 16 Ekim 2026 — Marka, gerçek iletişim ve canlı yayın
 
 - **Marka:** "Revnak Gayrimenkul" (K17). Yeni logo (altın ışıltı işareti), ikonlar ve paylaşım görseli; ilan no öneki `RVK-`.

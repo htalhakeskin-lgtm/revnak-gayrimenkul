@@ -200,7 +200,7 @@ async function ListingDetail({ params }: { params: PageProps<"/ilan/[slug]">["pa
 
             <ul className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-[20px] border border-line bg-line sm:grid-cols-5">
               {quick.map(({ icon: Icon, label, value }) => (
-                <li key={label} className="bg-raised p-5">
+                <li key={label} className="bg-raised p-5 last:col-span-2 sm:last:col-span-1">
                   <Icon size={20} className="text-accent" aria-hidden />
                   <p className="mt-3 text-xs text-fg-muted">{label}</p>
                   <p className="font-semibold">{value}</p>

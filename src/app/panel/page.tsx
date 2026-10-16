@@ -39,7 +39,7 @@ export default async function PanelHome() {
         <p className="mt-2 text-fg-muted">Ofisin bugünkü durumu. Rakamlar kurgusaldır; sitede yaptığınız işlemler canlı olarak eklenir.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatTile icon={<Inbox size={18} />} label="Yeni talep (30 gün)" value={formatNumber(totalLeads)} note="+18% önceki döneme göre" href="/panel/talepler" />
         <StatTile icon={<CalendarDays size={18} />} label="Bugünkü randevular" value={String(today.length)} note={`${panel.appointments.length} randevu bu hafta`} href="/panel/randevular" />
         <StatTile icon={<Home size={18} />} label="Aktif ilan" value={String(listings.length)} note="1 opsiyonlu" href="/panel/ilanlar" />
@@ -73,22 +73,25 @@ export default async function PanelHome() {
 
       <div className="grid gap-6 xl:grid-cols-5">
         <Card className="xl:col-span-3" title="En çok görüntülenen ilanlar">
-          <div className="-mx-6 overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-sm">
+          <div className="-mx-5 overflow-x-auto sm:-mx-6">
+            <table className="w-full text-left text-sm sm:min-w-[560px]">
               <thead className="text-xs text-fg-muted">
                 <tr>
-                  <th scope="col" className="px-6 py-2 font-medium">İlan</th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">Görüntülenme</th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">Favori</th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium">WhatsApp</th>
-                  <th scope="col" className="px-6 py-2 text-right font-medium">Randevu</th>
+                  <th scope="col" className="px-5 py-2 font-medium">İlan</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">
+                    <span className="sm:hidden">Görüntü</span>
+                    <span className="hidden sm:inline">Görüntülenme</span>
+                  </th>
+                  <th scope="col" className="hidden px-3 py-2 text-right font-medium sm:table-cell">Favori</th>
+                  <th scope="col" className="hidden px-3 py-2 text-right font-medium sm:table-cell">WhatsApp</th>
+                  <th scope="col" className="px-5 py-2 text-right font-medium">Randevu</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {popular.map((l) => (
                   <tr key={l.id}>
-                    <td className="px-6 py-3">
-                      <Link href={listingUrl(l)} className="flex max-w-[17rem] items-center gap-3 hover:text-accent">
+                    <td className="px-5 py-3">
+                      <Link href={listingUrl(l)} className="flex max-w-[8.5rem] items-center gap-3 hover:text-accent sm:max-w-[17rem]">
                         <span className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-sand">
                           <Photo src={l.images[0]} alt="" fill sizes="40px" className="object-cover" />
                         </span>
@@ -99,9 +102,9 @@ export default async function PanelHome() {
                       </Link>
                     </td>
                     <td className="tabular px-3 py-3 text-right">{formatNumber(l.stats.views)}</td>
-                    <td className="tabular px-3 py-3 text-right">{formatNumber(l.stats.favorites)}</td>
-                    <td className="tabular px-3 py-3 text-right">{formatNumber(l.stats.whatsapp)}</td>
-                    <td className="tabular px-6 py-3 text-right">{l.stats.appointments}</td>
+                    <td className="tabular hidden px-3 py-3 text-right sm:table-cell">{formatNumber(l.stats.favorites)}</td>
+                    <td className="tabular hidden px-3 py-3 text-right sm:table-cell">{formatNumber(l.stats.whatsapp)}</td>
+                    <td className="tabular px-5 py-3 text-right">{l.stats.appointments}</td>
                   </tr>
                 ))}
               </tbody>
@@ -114,25 +117,25 @@ export default async function PanelHome() {
       </div>
 
       <Card title="Danışman performansı · bu ay">
-        <div className="-mx-6 overflow-x-auto">
-          <table className="w-full min-w-[520px] text-left text-sm">
+        <div className="-mx-5 overflow-x-auto sm:-mx-6">
+          <table className="w-full text-left text-sm sm:min-w-[520px]">
             <thead className="text-xs text-fg-muted">
               <tr>
-                <th scope="col" className="px-6 py-2 font-medium">Danışman</th>
+                <th scope="col" className="px-5 py-2 font-medium">Danışman</th>
                 <th scope="col" className="px-3 py-2 text-right font-medium">Talep</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">Gösterim</th>
-                <th scope="col" className="px-3 py-2 text-right font-medium">Dönüşüm</th>
-                <th scope="col" className="px-6 py-2 text-right font-medium">Kapanan işlem</th>
+                <th scope="col" className="hidden px-3 py-2 text-right font-medium sm:table-cell">Gösterim</th>
+                <th scope="col" className="hidden px-3 py-2 text-right font-medium sm:table-cell">Dönüşüm</th>
+                <th scope="col" className="px-5 py-2 text-right font-medium">Kapanan</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {panel.agentMonth.map((row) => (
                 <tr key={row.agentSlug}>
-                  <td className="px-6 py-3 font-semibold">{agentName(row.agentSlug)}</td>
+                  <td className="px-5 py-3 font-semibold">{agentName(row.agentSlug)}</td>
                   <td className="tabular px-3 py-3 text-right">{row.leads}</td>
-                  <td className="tabular px-3 py-3 text-right">{row.showings}</td>
-                  <td className="tabular px-3 py-3 text-right">%{Math.round((row.showings / row.leads) * 100)}</td>
-                  <td className="tabular px-6 py-3 text-right">{row.closed}</td>
+                  <td className="tabular hidden px-3 py-3 text-right sm:table-cell">{row.showings}</td>
+                  <td className="tabular hidden px-3 py-3 text-right sm:table-cell">%{Math.round((row.showings / row.leads) * 100)}</td>
+                  <td className="tabular px-5 py-3 text-right">{row.closed}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,7 +158,7 @@ function Card({
   className?: string;
 }) {
   return (
-    <section className={`rounded-[20px] border border-line bg-raised p-6 ${className ?? ""}`}>
+    <section className={`rounded-[20px] border border-line bg-raised p-5 sm:p-6 ${className ?? ""}`}>
       {title ? (
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 className="font-semibold">{title}</h2>
@@ -171,10 +174,10 @@ function StatTile({ icon, label, value, note, href }: { icon: ReactNode; label: 
   const body = (
     <>
       <div className="flex items-center justify-between text-fg-muted">
-        <span className="text-sm">{label}</span>
-        <span className="grid size-9 place-items-center rounded-full bg-accent/12 text-accent">{icon}</span>
+        <span className="text-xs leading-snug sm:text-sm">{label}</span>
+        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent/12 text-accent sm:size-9">{icon}</span>
       </div>
-      <p className="tabular mt-4 font-serif text-4xl">{value}</p>
+      <p className="tabular mt-3 font-serif text-3xl sm:mt-4 sm:text-4xl">{value}</p>
       <p className="mt-1 flex items-center gap-1 text-xs text-fg-muted">
         {note}
         {href ? <ArrowUpRight size={12} /> : null}
@@ -182,10 +185,10 @@ function StatTile({ icon, label, value, note, href }: { icon: ReactNode; label: 
     </>
   );
   return href ? (
-    <Link href={href} className="block rounded-[20px] border border-line bg-raised p-6 transition-colors hover:border-accent">
+    <Link href={href} className="block rounded-[20px] border border-line bg-raised p-4 transition-colors hover:border-accent sm:p-6">
       {body}
     </Link>
   ) : (
-    <div className="rounded-[20px] border border-line bg-raised p-6">{body}</div>
+    <div className="rounded-[20px] border border-line bg-raised p-4 sm:p-6">{body}</div>
   );
 }

@@ -160,7 +160,7 @@ export function ConsentFields({ idPrefix, error }: { idPrefix: string; error?: s
 /** Botların doldurduğu gizli alan */
 export function Honeypot() {
   return (
-    <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+    <div aria-hidden className="sr-only">
       <label>
         Web siteniz
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />

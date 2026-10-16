@@ -93,7 +93,19 @@ async function PostDetail({ params }: { params: PageProps<"/blog/[slug]">["param
       <div className="tone-light py-16 md:py-24">
         <div className="container-site grid max-w-6xl gap-14 lg:grid-cols-12">
           <aside className="lg:col-span-3">
-            <nav aria-label="İçindekiler" className="lg:sticky lg:top-28">
+            <details className="rounded-[14px] border border-line bg-raised px-5 py-4 lg:hidden">
+              <summary className="cursor-pointer text-sm font-semibold">İçindekiler</summary>
+              <ol className="mt-3 space-y-2 text-sm">
+                {toc.map((h) => (
+                  <li key={h.text}>
+                    <a href={`#${slugify(h.text)}`} className="text-fg-muted hover:text-accent">
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+            <nav aria-label="İçindekiler" className="hidden lg:sticky lg:top-28 lg:block">
               <p className="text-xs font-semibold tracking-[0.16em] text-fg-muted uppercase">İçindekiler</p>
               <ol className="mt-4 space-y-2 border-l border-line text-sm">
                 {toc.map((h) => (

@@ -87,7 +87,55 @@ export function WeekCalendar({
           ))}
         </select>
       </label>
-      <div className="-mx-5 overflow-x-auto px-5 lg:-mx-10 lg:px-10" data-lenis-prevent-horizontal>
+      {/* Mobil: gün gün ajanda */}
+      <div className="space-y-5 md:hidden">
+        {days.map((d, i) => {
+          const dayItems = items.filter((x) => x.date === d).sort((a, b) => a.time.localeCompare(b.time));
+          const closed = weekdayOf(d) === 0;
+          const [y, m, dd] = d.split("-").map(Number);
+          return (
+            <section key={d} aria-label={dayFmt.format(new Date(Date.UTC(y, m - 1, dd)))}>
+              <h2 className={cn("mb-2 text-sm font-semibold capitalize", i === 0 && "text-accent")}>
+                {i === 0 ? "Bugün · " : ""}
+                {dayFmt.format(new Date(Date.UTC(y, m - 1, dd)))}
+              </h2>
+              {closed || dayItems.length === 0 ? (
+                <p className="rounded-[12px] bg-sand/60 px-4 py-3 text-xs text-fg-muted">
+                  {closed ? "Pazar · randevu ile" : "Randevu yok"}
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {dayItems.map((x) => {
+                    const { label, Icon } = kindMeta[x.kind];
+                    return (
+                      <li
+                        key={x.id}
+                        className={cn("flex items-center gap-4 rounded-[12px] border bg-raised p-3", x.local ? "border-gold" : "border-line")}
+                      >
+                        <span className="tabular w-12 shrink-0 font-semibold">{x.time}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold">{x.contact}</p>
+                          <p className="truncate text-xs text-fg-muted">
+                            {label} · {agentName(x.agentSlug)}
+                            {x.listing ? ` · ${x.listing}` : ""}
+                          </p>
+                          {x.local ? (
+                            <p className="mt-0.5 text-[0.625rem] font-bold tracking-wide text-gold-ink uppercase">Sizin randevunuz</p>
+                          ) : null}
+                        </div>
+                        <Icon size={16} className="shrink-0 text-accent" aria-hidden />
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+          );
+        })}
+      </div>
+
+      {/* Masaüstü: haftalık ızgara */}
+      <div className="-mx-5 hidden overflow-x-auto px-5 md:block lg:-mx-10 lg:px-10" data-lenis-prevent-horizontal>
         <div className="grid min-w-[1100px] grid-cols-7 gap-3">
           {days.map((d, i) => {
             const dayItems = items.filter((x) => x.date === d).sort((a, b) => a.time.localeCompare(b.time));

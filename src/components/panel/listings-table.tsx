@@ -48,7 +48,7 @@ export function ListingsTable({ rows }: { rows: PanelListingRow[] }) {
 
   return (
     <div className="rounded-[20px] border border-line bg-raised">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line p-3 sm:p-4">
         <div className="flex flex-wrap gap-1" role="group" aria-label="Durum filtresi">
           {filters.map((f) => {
             const count = rows.filter((r) =>
@@ -61,7 +61,7 @@ export function ListingsTable({ rows }: { rows: PanelListingRow[] }) {
                 aria-pressed={filter === f.key}
                 onClick={() => setFilter(f.key)}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+                  "rounded-full px-3 py-1.5 text-sm font-semibold transition-colors sm:px-4",
                   filter === f.key ? "bg-ink text-ivory" : "text-fg-muted hover:bg-sand hover:text-fg",
                 )}
               >
@@ -79,7 +79,33 @@ export function ListingsTable({ rows }: { rows: PanelListingRow[] }) {
           + Yeni ilan
         </button>
       </div>
-      <div className="overflow-x-auto">
+      {/* Mobil: kart listesi */}
+      <ul className="divide-y divide-line md:hidden">
+        {shown.map((r) => (
+          <li key={r.id} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <Link href={`/ilan/${r.slug}`} className="min-w-0 font-semibold leading-snug hover:text-accent">
+                {r.title}
+              </Link>
+              <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold", statusClass[r.status])}>
+                {r.statusLabel}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-fg-muted">
+              {r.no} · {r.transaction} · {r.agent}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <span className="tabular font-semibold">{r.price}</span>
+              <span className="tabular text-xs text-fg-muted">
+                {fmt.format(r.views)} görüntülenme · {fmt.format(r.whatsapp)} WhatsApp · {r.appointments} randevu
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Masaüstü: tablo */}
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="text-xs text-fg-muted">
             <tr className="border-b border-line">

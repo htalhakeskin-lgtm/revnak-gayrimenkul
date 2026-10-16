@@ -91,7 +91,13 @@ function NumberInput({
         />
         {suffix ? <span className="text-sm text-fg-muted">{suffix}</span> : null}
       </span>
-      {hint ? <span className="mt-1 block text-xs text-fg-muted">{hint}</span> : null}
+      {hint || suffix === "₺" ? (
+        <span className="tabular mt-1 block text-xs text-fg-muted">
+          {suffix === "₺" ? formatPrice(value) : null}
+          {suffix === "₺" && hint ? " · " : null}
+          {hint}
+        </span>
+      ) : null}
     </label>
   );
 }

@@ -24,7 +24,7 @@ export default async function AppointmentPage() {
       />
       <section className="tone-light py-16 md:py-24">
         <div className="container-site grid gap-14 lg:grid-cols-12">
-          <aside className="space-y-6 lg:col-span-4">
+          <aside className="order-2 space-y-6 lg:order-1 lg:col-span-4">
             {[
               { Icon: Home, title: "Yerinde gösterim", text: "İlan sayfasından alınır; danışmanımız sizi mülkte karşılar." },
               { Icon: Building2, title: "Ofiste görüşme", text: "İhtiyaçlarınızı konuşur, portföyü birlikte inceleriz." },
@@ -44,7 +44,7 @@ export default async function AppointmentPage() {
               Randevunuzu iptal etmek veya ertelemek isterseniz onay mesajındaki bağlantıyı kullanabilirsiniz (gerçek sürümde).
             </p>
           </aside>
-          <div className="rounded-[20px] border border-line bg-raised p-6 md:p-10 lg:col-span-8">
+          <div className="order-1 rounded-[20px] border border-line bg-raised p-5 sm:p-6 md:p-10 lg:order-2 lg:col-span-8">
             <Suspense fallback={<AppointmentForm agents={agents} idPrefix="randevu" />}>
               <AppointmentPageForm agents={agents} />
             </Suspense>

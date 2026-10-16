@@ -26,11 +26,12 @@ export function CookieConsent() {
     <div
       role="region"
       aria-label="Çerez tercihleri"
-      className="animate-page-in fixed inset-x-3 bottom-[84px] z-40 mx-auto max-w-xl rounded-[20px] border border-night-line bg-night-raised/95 p-5 text-sm text-ivory shadow-[0_24px_80px_rgb(0_0_0/0.5)] backdrop-blur-xl md:right-24 md:bottom-6 md:left-auto md:mx-0 md:w-[20rem]"
+      className="animate-page-in fixed inset-x-3 bottom-[84px] z-40 mx-auto max-w-xl rounded-[20px] border border-night-line bg-night-raised/95 p-4 text-[0.8125rem] text-ivory shadow-[0_24px_80px_rgb(0_0_0/0.5)] backdrop-blur-xl md:right-24 md:bottom-6 md:left-auto md:mx-0 md:w-[20rem] md:p-5 md:text-sm"
     >
-      <p className="font-semibold">Çerez tercihleriniz</p>
-      <p className="mt-2 leading-relaxed text-muted">
-        Zorunlu çerezler dışındaki analitik ve pazarlama çerezleri yalnızca onayınızla çalışır.{" "}
+      <p className="hidden font-semibold md:block">Çerez tercihleriniz</p>
+      <p className="leading-relaxed text-muted md:mt-2">
+        <strong className="font-semibold text-ivory md:hidden">Çerezler: </strong>
+        Analitik ve pazarlama çerezleri yalnızca onayınızla çalışır.{" "}
         <Link href="/cerez-politikasi" className="text-gold underline underline-offset-4">
           Çerez politikası
         </Link>
@@ -64,20 +65,21 @@ export function CookieConsent() {
         </fieldset>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 grid grid-cols-3 gap-2 md:mt-4 md:flex md:flex-wrap">
         {details ? (
-          <Button size="sm" onClick={() => save(analytics, marketing)}>
+          <Button size="sm" className="col-span-3" onClick={() => save(analytics, marketing)}>
             Seçimi kaydet
           </Button>
         ) : (
           <>
-            <Button size="sm" onClick={() => save(true, true)}>
-              Tümünü kabul et
+            <Button size="sm" className="px-2 md:px-4" onClick={() => save(true, true)}>
+              <span className="md:hidden">Kabul et</span>
+              <span className="hidden md:inline">Tümünü kabul et</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => save(false, false)}>
+            <Button size="sm" variant="outline" className="px-2 md:px-4" onClick={() => save(false, false)}>
               Reddet
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setDetails(true)}>
+            <Button size="sm" variant="ghost" className="px-2 md:px-4" onClick={() => setDetails(true)}>
               Tercihler
             </Button>
           </>

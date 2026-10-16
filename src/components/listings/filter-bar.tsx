@@ -341,21 +341,15 @@ export function FilterBar({
       </Dialog>
 
       <Dialog open={mobileOpen} onClose={() => setMobileOpen(false)} title="Filtreler" size="full">
-        <div className="tone-light -mx-6 -my-6 space-y-6 bg-ivory px-6 py-6">
-          {transactionSwitch}
-          {regionSelect}
-          {typeSelect}
-          {priceSelects}
-          <Labeled label="Oda sayısı">{roomButtons}</Labeled>
-          {viewToggle}
-          <MoreFilters
-            filters={filters}
-            onApply={(patch) => {
-              setMobileOpen(false);
-              apply(patch);
-            }}
-          />
-        </div>
+        <MobileFilters
+          filters={filters}
+          transaction={transaction}
+          regions={regions}
+          onApply={(next, path) => {
+            setMobileOpen(false);
+            startTransition(() => router.replace(hrefFor({ ...next, sayfa: 1 }, path), { scroll: false }));
+          }}
+        />
       </Dialog>
     </div>
   );
@@ -484,6 +478,219 @@ function MoreFilters({
           }
         >
           Uygula
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Mobil filtre penceresi: seçimler taslakta tutulur ve "Sonuçları göster" ile
+ * tek seferde uygulanır (her seçimde sayfa yenilenip pencere kapanmaz).
+ */
+function MobileFilters({
+  filters,
+  transaction,
+  regions,
+  onApply,
+}: {
+  filters: ListingFilters;
+  transaction?: TransactionType;
+  regions: RegionOption[];
+  onApply: (next: ListingFilters, path: string) => void;
+}) {
+  const [draft, setDraft] = useState<ListingFilters>(filters);
+  const [mode, setMode] = useState<TransactionType | undefined>(transaction);
+  const set = (patch: Partial<ListingFilters>) => setDraft((d) => ({ ...d, ...patch }));
+  const field = "h-12 w-full rounded-xl border border-line bg-raised px-4 text-fg focus:border-accent focus:outline-none";
+  const label = "mb-2 block text-xs font-semibold tracking-[0.14em] text-fg-muted uppercase";
+  const chip = (active: boolean) =>
+    cn(
+      "rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+      active ? "border-ink bg-ink text-ivory" : "border-line bg-raised text-fg",
+    );
+  const modes: [TransactionType | undefined, string][] = [
+    [undefined, "Tümü"],
+    ["satilik", "Satılık"],
+    ["kiralik", "Kiralık"],
+  ];
+
+  return (
+    <div className="tone-light -mx-6 -my-6 flex min-h-full flex-col bg-ivory">
+      <div className="flex-1 space-y-6 px-6 py-6">
+        <div>
+          <span className={label}>İşlem</span>
+          <div className="flex gap-2" role="group" aria-label="İşlem tipi">
+            {modes.map(([value, text]) => (
+              <button
+                key={text}
+                type="button"
+                aria-pressed={mode === value}
+                onClick={() => {
+                  if (value !== mode) set({ min: undefined, max: undefined });
+                  setMode(value);
+                }}
+                className={chip(mode === value)}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <label className="block">
+          <span className={label}>Bölge</span>
+          <select className={field} value={draft.bolge ?? ""} onChange={(e) => set({ bolge: e.target.value || undefined })}>
+            <option value="">Tüm bölgeler</option>
+            {regions.map((r) => (
+              <option key={r.slug} value={r.slug}>
+                {r.name}, {r.district}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className={label}>Mülk tipi</span>
+          <select
+            className={field}
+            value={draft.tip ?? ""}
+            onChange={(e) => set({ tip: (e.target.value || undefined) as ListingFilters["tip"] })}
+          >
+            <option value="">Tüm tipler</option>
+            {Object.entries(propertyTypeLabels).map(([key, text]) => (
+              <option key={key} value={key}>
+                {text}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {mode ? (
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className={label}>En az</span>
+              <select
+                className={field}
+                value={draft.min ?? ""}
+                onChange={(e) => set({ min: e.target.value ? Number(e.target.value) : undefined })}
+              >
+                <option value="">Min ₺</option>
+                {priceOptions[mode].min.map((v) => (
+                  <option key={v} value={v}>
+                    {formatPriceShort(v)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className={label}>En çok</span>
+              <select
+                className={field}
+                value={draft.max ?? ""}
+                onChange={(e) => set({ max: e.target.value ? Number(e.target.value) : undefined })}
+              >
+                <option value="">Max ₺</option>
+                {priceOptions[mode].max.map((v) => (
+                  <option key={v} value={v}>
+                    {formatPriceShort(v)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : (
+          <p className="text-sm text-fg-muted">Fiyat aralığı için Satılık veya Kiralık seçin.</p>
+        )}
+
+        <div>
+          <span className={label}>Oda sayısı</span>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Oda sayısı">
+            {roomOptions.map((room) => (
+              <button
+                key={room}
+                type="button"
+                aria-pressed={draft.oda === room}
+                onClick={() => set({ oda: draft.oda === room ? undefined : room })}
+                className={chip(draft.oda === room)}
+              >
+                {room}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className={label}>Brüt m² (en az)</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={draft.m2min ?? ""}
+              onChange={(e) =>
+                set({ m2min: Number(e.target.value) > 0 ? Math.round(Number(e.target.value)) : undefined })
+              }
+              placeholder="ör. 120"
+              className={field}
+            />
+          </label>
+          <label className="block">
+            <span className={label}>Bina yaşı</span>
+            <select
+              className={field}
+              value={draft.yas ?? ""}
+              onChange={(e) => set({ yas: e.target.value ? Number(e.target.value) : undefined })}
+            >
+              <option value="">Fark etmez</option>
+              {ageOptions.map((a) => (
+                <option key={a} value={a}>
+                  En fazla {a} yıl
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <fieldset>
+          <legend className={label}>Özellikler</legend>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(featureFilterLabels) as FeatureFilterKey[]).map((key) => {
+              const active = draft.ozellik.includes(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    set({ ozellik: active ? draft.ozellik.filter((k) => k !== key) : [...draft.ozellik, key] })
+                  }
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-sm transition-colors",
+                    active ? "border-accent bg-accent text-ivory" : "border-line bg-raised text-fg",
+                  )}
+                >
+                  {featureFilterLabels[key]}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      </div>
+
+      <div className="sticky bottom-0 flex gap-3 border-t border-line bg-ivory/95 px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur">
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={() => {
+            setMode(transaction);
+            setDraft({ ozellik: [], siralama: filters.siralama, sayfa: 1, q: filters.q });
+          }}
+        >
+          Sıfırla
+        </Button>
+        <Button className="flex-[2]" onClick={() => onApply({ ...draft, islem: undefined }, mode ? `/ilanlar/${mode}` : "/ilanlar")}>
+          Sonuçları göster
         </Button>
       </div>
     </div>

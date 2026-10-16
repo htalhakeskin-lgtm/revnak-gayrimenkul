@@ -96,6 +96,15 @@
   color: var(--tone-fg);
 }
 
+/* Form kontrolleri (onay kutusu, seçim listesi) bölümün zeminine göre çizilsin */
+.tone-dark {
+  color-scheme: dark;
+}
+
+.tone-light {
+  color-scheme: light;
+}
+
 @layer base {
   html {
     color-scheme: dark;
@@ -128,6 +137,18 @@
   /* fieldset varsayılanı min-width: min-content; yatay kaydırmalı içerik taşmasın */
   fieldset {
     min-width: 0;
+  }
+
+  /* Izgara öğelerinin varsayılan min-width: auto değeri geniş içerikte (tablo, şerit)
+     sütunu ve tüm sayfayı genişletir. Yardımcı sınıflar (min-w-*) yine ezebilir. */
+  :where(.grid) > * {
+    min-width: 0;
+  }
+
+  /* Son güvenlik ağı: yanlışlıkla taşan bir öğe mobilde sayfayı yatay kaydırmasın.
+     clip, sticky öğeleri bozmaz (hidden'dan farkı). */
+  body {
+    overflow-x: clip;
   }
 
   ::selection {
@@ -216,6 +237,8 @@
   .snap-strip {
     display: grid;
     grid-auto-flow: column;
+    /* Şeridin içeriği ebeveynin genişliğini büyütmesin */
+    contain: inline-size;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
@@ -495,6 +518,15 @@ html.lenis body {
 
 .lenis.lenis-smooth iframe {
   pointer-events: none;
+}
+
+/* Dokunmatik cihazlarda form yazısı en az 16px: iOS odakta sayfayı yakınlaştırmasın */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
 }
 
 /* Native dialog arka planı */
