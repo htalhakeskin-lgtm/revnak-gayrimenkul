@@ -17,6 +17,7 @@ export type FeedItem = {
   id: string;
   text: string;
   time: string;
-  local: boolean;
+  /** "gercek": veritabanından · "sizin": yalnızca bu tarayıcıda (K20) */
+  badge?: "gercek" | "sizin";
   icon: "lead" | "whatsapp" | "telefon" | "randevu";
 };

@@ -1,5 +1,20 @@
 # İlerleme günlüğü
 
+## 16 Ekim 2026 — Gerçek altyapı (K20) ve açık depo (K21)
+
+- **Veritabanı:** Neon Postgres (Vercel Marketplace) + Drizzle ORM. Tablolar `leads` ve `appointments` (`src/db/schema.ts`). Formlar ve randevular kaydediliyor; takip no `T-…` / `R-…`.
+- **Panel girişi:** `/panel/giris`, bcrypt + imzalı JWT çerez (14 gün), denetim `src/proxy.ts`. Pano, gelen talepler ve takvim veritabanından okuyor; "Gerçek" / "Örnek" etiketleri ayrı.
+- **Randevu:** çakışma sunucuda veritabanına karşı kontrol ediliyor; formdaki dolu saatler `/api/randevu/dolu`'dan geliyor (ziyaretçi dolu saati seçip reddedilmiyor).
+- **Bulunup düzeltilen hatalar:**
+  - bcrypt hash'indeki `$` işaretleri `.env.local` yüklenirken değişken sanılıp siliniyordu → hash Base64 ile saklanıyor (CLAUDE.md'de kural).
+  - Panel her sayfada tarayıcıda çöküyordu: DB okuyan `LeadBadge` sunucu bileşeni istemci menüsüne import edilmişti → prop olarak geçiriliyor.
+  - `new Date()` Suspense içinde olsa bile build'i durduruyordu → önce `await connection()`.
+  - Giriş sayfasında `searchParams` Suspense dışında okunuyordu.
+  - Next 16: `middleware.ts` → `proxy.ts`.
+- **Doğrulanan akışlar:** yanlış parola reddediliyor; doğru parolayla `sonra` adresine dönülüyor; iletişim formu → panelde "Gerçek talep"; randevu → takvimde yeşil çerçeve; aynı saate ikinci randevu sunucuda reddediliyor ve formda dolu görünüyor.
+- **Açık depo (K21):** README ekran görüntüleri, `.env.example`, `npm run panel:parola`.
+- **Sıradaki:** danışmana e-posta/SMS bildirimi (ör. Resend), Turnstile, panelde talep durumunu güncelleme.
+
 ## 16 Ekim 2026 — Mobil uyum turu
 
 - **Kök neden:** CSS Grid öğelerinin varsayılan `min-width: auto` değeri; geniş içerik (14 günlük tarih şeridi, panel tabloları) kartı ve tüm sayfayı genişletiyordu (`/randevu` 1290 px, `/panel` 685 px). iOS Safari bu yüzden sayfayı uzaklaştırıyordu.

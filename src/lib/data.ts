@@ -4,6 +4,13 @@ import * as panel from "@/data/panel";
 import { posts } from "@/data/posts";
 import { regions } from "@/data/regions";
 import type { Agent, Listing, Post, Region } from "@/data/types";
+import {
+  countLeadsSince,
+  getAppointmentsForDates,
+  getBookedSlots,
+  getRecentLeads,
+  getUpcomingAppointments,
+} from "@/db/queries";
 import { daysBetween } from "./format";
 import {
   matchesFilters,
@@ -180,4 +187,28 @@ export async function getPanelData() {
     activities: panel.panelActivities,
     agentMonth: panel.agentMonth,
   };
+}
+
+// ---------------------------------------------------------------- Gerçek kayıtlar (K20)
+// Veritabanından okur (src/db/queries.ts). "now"a bağlı tarihler çağıran yerde hesaplanır;
+// bu dosya render sırasında new Date() çağırmaz (Cache Components kuralı).
+
+export async function getRecentLeadsCount(sinceIso: string) {
+  return countLeadsSince(sinceIso);
+}
+
+export async function getRecentLeadsList(limit?: number) {
+  return getRecentLeads(limit);
+}
+
+export async function getAppointmentsOnDates(dates: string[]) {
+  return getAppointmentsForDates(dates);
+}
+
+export async function getAllUpcomingAppointments(limit?: number) {
+  return getUpcomingAppointments(limit);
+}
+
+export async function getBookedSlotsForAgent(agentSlug: string, fromDate: string) {
+  return getBookedSlots(agentSlug, fromDate);
 }

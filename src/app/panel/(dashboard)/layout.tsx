@@ -1,10 +1,12 @@
-import { ArrowUpRight, Bell, Search } from "lucide-react";
+import { ArrowUpRight, Bell, LogOut, Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/layout/logo";
+import { LeadBadge } from "@/components/panel/lead-badge";
 import { PanelNav, PanelTabBar } from "@/components/panel/panel-nav";
 import { Photo } from "@/components/ui/photo";
+import { panelLogout } from "../giris/actions";
 
 export const metadata: Metadata = {
   title: { default: "Ofis paneli", template: "%s · Ofis paneli" },
@@ -12,15 +14,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * Ofis paneli vitrini (D-14, Bölüm 20.2). Örnek veriyle çalışır; giriş yoktur.
+ * Ofis paneli (D-14, Bölüm 20.2). Parola korumalı (K20); talepler ve randevular veritabanından gelir.
  * Masaüstü: kenar menü. Mobil: koyu üst çubuk + alt sekme çubuğu.
- * Üretimde Payload admin + özel ekranlar (M10, M17) bunun yerini alır.
+ * LeadBadge sunucu bileşenidir; istemci menüsüne prop olarak verilir (import edilemez).
  */
 export default function PanelLayout({ children }: { children: ReactNode }) {
   return (
     <div className="tone-light min-h-dvh lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       <aside className="hidden lg:sticky lg:top-0 lg:block lg:h-dvh">
-        <PanelNav />
+        <PanelNav leadBadge={<LeadBadge className="ml-auto" />} />
       </aside>
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-line bg-raised/95 px-4 py-3 backdrop-blur-xl lg:static lg:px-10 lg:py-4">
@@ -62,13 +64,23 @@ export default function PanelLayout({ children }: { children: ReactNode }) {
                 <span className="block text-xs text-fg-muted">Süper Admin</span>
               </span>
             </div>
+            <form action={panelLogout}>
+              <button
+                type="submit"
+                className="grid size-10 place-items-center rounded-full text-fg-muted hover:bg-sand hover:text-fg"
+                aria-label="Çıkış yap"
+                title="Çıkış yap"
+              >
+                <LogOut size={18} />
+              </button>
+            </form>
           </div>
         </header>
         <main id="icerik" className="px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:py-10">
           {children}
         </main>
       </div>
-      <PanelTabBar />
+      <PanelTabBar leadBadge={<LeadBadge className="absolute top-1.5 left-1/2 ml-2" />} />
     </div>
   );
 }

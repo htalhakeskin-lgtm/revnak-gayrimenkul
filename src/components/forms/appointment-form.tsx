@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2, CalendarPlus, Home, Loader2, Video } from "lucide-react";
-import { useMemo, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
 import { bookAppointment, type ActionResult } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,24 +64,46 @@ export function AppointmentForm({
   const [result, setResult] = useState<ActionResult | null>(null);
   const [booked, setBooked] = useState<{ date: string; time: string; ref: string } | null>(null);
   const [pending, startTransition] = useTransition();
+  // Veritabanındaki onaylı randevular (K20): "YYYY-MM-DD HH:mm" anahtarları, danışman başına
+  const [dbBooked, setDbBooked] = useState<{ agentSlug: string; keys: Set<string> } | null>(null);
+  const [bookedVersion, setBookedVersion] = useState(0);
+
+  useEffect(() => {
+    if (!agentSlug) return;
+    const controller = new AbortController();
+    fetch(`/api/randevu/dolu?danisman=${encodeURIComponent(agentSlug)}`, { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : { slots: [] }))
+      .then((data: { slots: { date: string; time: string }[] }) =>
+        setDbBooked({ agentSlug, keys: new Set(data.slots.map((x) => `${x.date} ${x.time}`)) }),
+      )
+      .catch(() => {});
+    return () => controller.abort();
+  }, [agentSlug, bookedVersion]);
+
+  const isTaken = useMemo(() => {
+    const local = new Set(localAppointments.filter((a) => a.agentSlug === agentSlug).map((a) => `${a.date} ${a.time}`));
+    const remote = dbBooked?.agentSlug === agentSlug ? dbBooked.keys : undefined;
+    return (d: string, t: string) => local.has(`${d} ${t}`) || Boolean(remote?.has(`${d} ${t}`));
+  }, [localAppointments, agentSlug, dbBooked]);
 
   const days = useMemo(() => (hydrated ? bookableDays(todayInIstanbul(new Date())) : []), [hydrated]);
   const firstAvailable = useMemo(
-    () => days.find((d) => getSlots(agentSlug, d, now ? new Date(now) : undefined).some((s) => !s.busy)) ?? days[0],
-    [days, agentSlug, now],
+    () =>
+      days.find((d) =>
+        getSlots(agentSlug, d, now ? new Date(now) : undefined).some((s) => !s.busy && !isTaken(d, s.time)),
+      ) ?? days[0],
+    [days, agentSlug, now, isTaken],
   );
   const activeDate = date || firstAvailable || "";
 
   const slots = useMemo(() => {
     if (!activeDate || !agentSlug) return [];
-    const takenLocally = new Set(
-      localAppointments.filter((a) => a.agentSlug === agentSlug && a.date === activeDate).map((a) => a.time),
-    );
     return getSlots(agentSlug, activeDate, now ? new Date(now) : undefined).map((s) => ({
       ...s,
-      busy: s.busy || takenLocally.has(s.time),
+      busy: s.busy || isTaken(activeDate, s.time),
     }));
-  }, [activeDate, agentSlug, localAppointments, now]);
+  }, [activeDate, agentSlug, now, isTaken]);
+  const selectedTime = slots.some((s) => s.time === time && !s.busy) ? time : "";
 
   const agent = agents.find((a) => a.slug === agentSlug);
   const availableKinds = listing ? kinds : kinds.filter((k) => k.value !== "yerinde");
@@ -101,6 +123,7 @@ export function AppointmentForm({
       setResult(res);
       if (!res.ok) {
         setErrors(res.errors);
+        setBookedVersion((v) => v + 1);
         return;
       }
       appointmentsStore.set((prev) => [
@@ -169,7 +192,7 @@ export function AppointmentForm({
     <form onSubmit={onSubmit} noValidate className="space-y-8">
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="date" value={activeDate} />
-      <input type="hidden" name="time" value={time} />
+      <input type="hidden" name="time" value={selectedTime} />
       {listing ? <input type="hidden" name="listingSlug" value={listing.slug} /> : null}
       {listing ? <input type="hidden" name="agentSlug" value={agentSlug} /> : null}
 
@@ -252,13 +275,13 @@ export function AppointmentForm({
                   key={s.time}
                   type="button"
                   disabled={s.busy}
-                  aria-pressed={time === s.time}
+                  aria-pressed={selectedTime === s.time}
                   onClick={() => setTime(s.time)}
                   className={cn(
                     "tabular h-11 rounded-full border text-sm font-semibold transition-colors",
                     s.busy && "cursor-not-allowed border-transparent bg-fg/5 text-fg-muted/60 line-through",
-                    !s.busy && time === s.time && "border-accent bg-accent text-bg",
-                    !s.busy && time !== s.time && "border-line bg-raised text-fg hover:border-accent",
+                    !s.busy && selectedTime === s.time && "border-accent bg-accent text-bg",
+                    !s.busy && selectedTime !== s.time && "border-line bg-raised text-fg hover:border-accent",
                   )}
                   aria-label={s.busy ? `${s.time} dolu` : `${s.time} müsait`}
                 >

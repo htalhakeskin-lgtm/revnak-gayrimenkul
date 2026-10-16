@@ -2,52 +2,28 @@
 
 import { CalendarDays, Inbox, Phone } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/brand-icons";
-import { appointmentsStore, clicksStore, leadsStore } from "@/lib/demo-store";
+import { clicksStore } from "@/lib/demo-store";
 import { useNow } from "@/lib/hooks";
 import { relativeTime, type FeedItem } from "@/lib/time";
 
-const leadKindLabels = {
-  iletisim: "İletişim formu",
-  "ilan-bilgi": "İlan bilgi talebi",
-  portfoy: "Portföy başvurusu",
-  degerleme: "Değerleme talebi",
-} as const;
-
-const shortDateFmt = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", weekday: "short", timeZone: "UTC" });
-
-function shortDate(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return shortDateFmt.format(new Date(Date.UTC(y, m - 1, d)));
-}
-
-/** Bu tarayıcıda yapılan demo işlemleri (form, randevu, iletişim tıklaması) akışa eklenir. */
+/**
+ * Bu tarayıcıda yapılan WhatsApp/telefon tıklamaları (K20): henüz veritabanına
+ * kaydedilmiyor, bu yüzden yalnızca gönderen kişinin kendi tarayıcısında görünür.
+ * Form gönderimleri ve randevular artık gerçek (bkz. `mock` prop'u sunucudan gelir).
+ */
 export function useLocalFeed(): FeedItem[] {
   const now = useNow();
-  const leads = leadsStore.use();
   const clicks = clicksStore.use();
-  const appointments = appointmentsStore.use();
   if (now === 0) return [];
-  const items = [
-    ...leads.map((l) => ({
-      id: l.id,
-      at: l.createdAt,
-      text: `${l.name}: ${leadKindLabels[l.kind]}${l.listingNo ? ` (${l.listingNo})` : ""}`,
-      icon: "lead" as const,
-    })),
-    ...clicks.map((c) => ({
+  return clicks
+    .map((c) => ({
       id: c.id,
       at: c.createdAt,
       text: `${c.channel === "whatsapp" ? "WhatsApp" : c.channel === "telefon" ? "Telefon" : "E-posta"} ilgisi${c.listingNo ? ` · ${c.listingNo}` : ""}`,
       icon: c.channel === "telefon" ? ("telefon" as const) : ("whatsapp" as const),
-    })),
-    ...appointments.map((a) => ({
-      id: a.id,
-      at: a.createdAt,
-      text: `${a.name} online randevu aldı (${shortDate(a.date)} ${a.time})`,
-      icon: "randevu" as const,
-    })),
-  ].sort((a, b) => b.at.localeCompare(a.at));
-  return items.map((i) => ({ id: i.id, text: i.text, time: relativeTime(i.at, now), local: true, icon: i.icon }));
+    }))
+    .sort((a, b) => b.at.localeCompare(a.at))
+    .map((i) => ({ id: i.id, text: i.text, time: relativeTime(i.at, now), badge: "sizin" as const, icon: i.icon }));
 }
 
 export function FeedIcon({ icon }: { icon: FeedItem["icon"] }) {
@@ -58,7 +34,22 @@ export function FeedIcon({ icon }: { icon: FeedItem["icon"] }) {
   return <span className={`${cls} bg-accent/12 text-accent`}><Inbox size={16} /></span>;
 }
 
-/** Pano: son hareketler (yerel + örnek) */
+function Badge({ kind }: { kind: NonNullable<FeedItem["badge"]> }) {
+  if (kind === "gercek") {
+    return (
+      <span className="ml-2 rounded-full bg-success/15 px-2 py-0.5 text-[0.625rem] font-bold tracking-wide text-success uppercase">
+        Gerçek
+      </span>
+    );
+  }
+  return (
+    <span className="ml-2 rounded-full bg-gold/25 px-2 py-0.5 text-[0.625rem] font-bold tracking-wide text-gold-ink uppercase">
+      Sizin
+    </span>
+  );
+}
+
+/** Pano: son hareketler. `mock` sunucudan gelir (gerçek veritabanı kayıtları + örnek veri karışık). */
 export function ActivityFeed({ mock }: { mock: FeedItem[] }) {
   const local = useLocalFeed();
   const items = [...local, ...mock].slice(0, 8);
@@ -70,9 +61,7 @@ export function ActivityFeed({ mock }: { mock: FeedItem[] }) {
           <div className="min-w-0 flex-1">
             <p className="text-sm">
               {item.text}
-              {item.local ? (
-                <span className="ml-2 rounded-full bg-gold/25 px-2 py-0.5 text-[0.625rem] font-bold tracking-wide text-gold-ink uppercase">Sizin</span>
-              ) : null}
+              {item.badge ? <Badge kind={item.badge} /> : null}
             </p>
             <p className="text-xs text-fg-muted">{item.time}</p>
           </div>

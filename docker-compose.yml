@@ -11,4 +11,9 @@ services:
     container_name: gayrimenkul-site
     ports:
       - "3050:3000"
+    # Veritabanı ve panel girişi için (DATABASE_URL, SESSION_SECRET, PANEL_PASSWORD_HASH_B64).
+    # Dosya yoksa site yine açılır; formlar ve panel çalışmaz.
+    env_file:
+      - path: .env.local
+        required: false
     restart: unless-stopped

@@ -23,11 +23,11 @@ export function FormSuccess({
       </p>
       {children}
       <p className="mx-auto mt-6 max-w-md text-xs leading-relaxed text-fg-muted">
-        Demo: Gerçek bir kayıt oluşturulmadı. Gönderiminiz bu tarayıcıda saklandı ve{" "}
+        Demo: Firma kurgusal, veri saklanması gerçektir. Gönderiminiz veritabanına kaydedildi ve{" "}
         <Link href="/panel/talepler" className="text-accent underline underline-offset-4">
           ofis panelinde
         </Link>{" "}
-        görünüyor.
+        görünüyor. Henüz e-posta/SMS bildirimi gönderilmiyor.
       </p>
     </div>
   );

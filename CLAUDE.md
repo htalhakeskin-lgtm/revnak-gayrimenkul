@@ -7,8 +7,11 @@ Plana aykırı bir şey yapılacaksa önce plan güncellenir ve karar Bölüm 16
 
 ## Proje durumu
 
-- **Gösterim amaçlı demo** (K9). Vercel'de yayınlanır, veritabanı/CMS yok (K10).
-- Veri: `src/data/*.ts` (kurgusal). Sayfalar ve sunucu eylemleri veriye **yalnızca** `src/lib/data.ts` üzerinden erişir.
+- **Gösterim amaçlı demo** (K9). Vercel'de canlı (K19), kaynak kod GitHub'da açık (K21) — gizli bilgi asla depoya girmez.
+- Vitrin verisi: `src/data/*.ts` (kurgusal, statik). Talepler ve randevular: **Neon Postgres + Drizzle** (`src/db/`, K20).
+  Sayfalar ve sunucu eylemleri veriye **yalnızca** `src/lib/data.ts` üzerinden erişir (DB sorguları `src/db/queries.ts`).
+- `/panel` parola korumalı: `src/proxy.ts` (Next 16'da `middleware` → `proxy`) + `src/lib/panel-auth.ts` (JWT çerez),
+  giriş eylemi `src/app/panel/giris/actions.ts`. Panel sayfaları `src/app/panel/(dashboard)/` altında.
 - Firma bilgileri tek yerde: `src/lib/site-config.ts` (`demo: true` → noindex, demo şeridi, iletişim demo penceresi).
 
 ## Yığın
@@ -25,7 +28,10 @@ npm run build      # production derlemesi
 npm run check      # lint + typecheck + test
 npm run test       # Vitest birim testleri (tests/)
 npm run format     # Prettier
+npx drizzle-kit push   # şemayı (src/db/schema.ts) veritabanına uygula — DATABASE_URL gerekir
 ```
+
+Ortam değişkenleri (`.env.local`, Vercel'de üç ortamda): `DATABASE_URL`, `SESSION_SECRET`, `PANEL_PASSWORD_HASH_B64`.
 
 ## Next 16 / Cache Components kuralları (bu projede öğrenildi)
 
@@ -33,7 +39,10 @@ npm run format     # Prettier
   `params`'ı beklemez; okuma Suspense içindeki alt bileşende yapılır (bkz. `src/app/(site)/ilan/[slug]/page.tsx`).
 - `dynamicParams` kullanılamaz. `usePathname` / `useSearchParams` kullanan istemci bileşenleri Suspense ile sarılır.
 - Render sırasında `Date.now()`, `new Date()`, `Math.random()` **yok**. "Bugün"e bağlı hesaplar tarayıcıda
-  (`useHydrated`, `useNow`) veya sunucu eyleminde yapılır.
+  (`useHydrated`, `useNow`) veya sunucu eyleminde yapılır. İstisna: `<Suspense>` içindeki async sunucu bileşeninde
+  **önce `await connection()`**, sonra `new Date()` (panel sayfaları böyle). Suspense tek başına yetmez; build hata verir.
+- DB okuyan (async) sunucu bileşeni `"use client"` dosyasına **import edilemez** — sunucuda render olur ama tarayıcıda
+  çöker ("This page couldn't load"). Sunucu düzeninden prop/children olarak geçir (bkz. `LeadBadge` → `PanelNav`).
 - `"use client"` dosyasından dışa aktarılan düz fonksiyonlar sunucuda çağrılamaz; paylaşılan yardımcılar `src/lib/` altında.
 - Activity: gizlenen sayfalar DOM'da kalır; açılır menü/pencereler `useLayoutEffect` temizliğiyle kapatılır.
 - `next/image`: `priority` yerine `preload`; kaliteler `next.config.ts` → `images.qualities`.
@@ -51,6 +60,18 @@ npm run format     # Prettier
   `:where(.grid) > * { min-width: 0 }` var; yeni yerleşimleri 360 px genişlikte taşma için tarayıcıda kontrol et.
 - Mobil: panelde tablolar kart listesine döner (`md:hidden` / `hidden md:block`); form yazısı dokunmatikte ≥ 16px.
 - `"use client"` modülündeki düz fonksiyonu sunucu bileşeninde çağırma (`src/lib/time.ts` gibi ortak modüle taşı).
+
+## Ortam değişkenlerinde `$` işareti (K20'de yaşandı — ÖNEMLİ)
+
+Next.js'in env yükleyicisi (`@next/env`), **yerelde** (`.env.local` dosyası varsa) `$AD` veya `${AD}` görünen
+her şeyi değişken referansı sanıp genişletir — bcrypt hash'i gibi `$2b$10$...` değerler sessizce bozulur (`$2b`,
+`$10` gibi parçalar tanımsız değişken sayılıp silinir). **Vercel'de** ise (prod/preview, hiç `.env` dosyası
+yoksa) bu genişletme hiç çalışmaz, ham değer aynen kullanılır. Yani "yerelde çalışan kaçış" (`\$`) Vercel'de
+BOZULUR, "Vercel'de çalışan ham değer" yerelde BOZULUR — iki ortam farklı davranır.
+
+**Kural:** `$` içerebilecek bir değeri (bcrypt/argon2 hash'i, bazı API anahtarları) asla doğrudan ortam
+değişkenine yazma. Base64 ile sarıp kodda çöz: `Buffer.from(encoded, "base64").toString("utf8")`. Bu hem
+yerelde hem Vercel'de simetrik çalışır, tekrar kırılmaz (bkz. `PANEL_PASSWORD_HASH_B64`, `src/app/panel/giris/actions.ts`).
 
 ## Tasarım kuralları (Bölüm 4)
 

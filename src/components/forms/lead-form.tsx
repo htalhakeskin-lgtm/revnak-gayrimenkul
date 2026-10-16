@@ -4,8 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { submitLead, type ActionResult } from "@/app/actions";
 import { Button } from "@/components/ui/button";
-import { leadsStore, newId, type DemoLead } from "@/lib/demo-store";
-import { formDataToObject, leadSchema, zodErrors, type FieldErrors } from "@/lib/schemas";
+import { formDataToObject, leadKinds, leadSchema, zodErrors, type FieldErrors } from "@/lib/schemas";
 import { ConsentFields, Honeypot, TextAreaField, TextField } from "./fields";
 import { FormSuccess } from "./form-success";
 
@@ -21,7 +20,7 @@ export function LeadForm({
   idPrefix = "lead",
   extraFields,
 }: {
-  kind?: DemoLead["kind"];
+  kind?: (typeof leadKinds)[number];
   listingNo?: string;
   defaultMessage?: string;
   submitLabel?: string;
@@ -50,24 +49,7 @@ export function LeadForm({
       setResult(res);
       if (!res.ok) {
         setErrors(res.errors);
-        return;
       }
-      leadsStore.set((prev) =>
-        [
-          {
-            id: newId(),
-            kind,
-            name: local.data.name,
-            phone: local.data.phone,
-            email: local.data.email,
-            message: local.data.message,
-            listingNo,
-            createdAt: new Date().toISOString(),
-            ref: res.ref,
-          },
-          ...prev,
-        ].slice(0, 30),
-      );
     });
   }
 

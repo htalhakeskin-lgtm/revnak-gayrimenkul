@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowUpRight, CalendarDays, Home, Inbox, Kanban, LayoutDashboard } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Home, Inbox, Kanban, LayoutDashboard, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { Logo } from "@/components/layout/logo";
-import { leadsStore } from "@/lib/demo-store";
+import { panelLogout } from "@/app/panel/giris/actions";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -19,42 +19,32 @@ const items = [
 const isActive = (pathname: string, href: string) => (href === "/panel" ? pathname === href : pathname.startsWith(href));
 
 /** Masaüstü: kenar menü. Mobilde gizlidir; yerine alt sekme çubuğu (PanelTabBar) kullanılır. */
-export function PanelNav() {
+export function PanelNav({ leadBadge }: { leadBadge?: ReactNode }) {
   return (
-    <Suspense fallback={<SideNav pathname="" />}>
-      <SideNavWithPath />
+    <Suspense fallback={<SideNav pathname="" leadBadge={leadBadge} />}>
+      <SideNavWithPath leadBadge={leadBadge} />
     </Suspense>
   );
 }
 
 /** Mobil: uygulama benzeri alt sekme çubuğu */
-export function PanelTabBar() {
+export function PanelTabBar({ leadBadge }: { leadBadge?: ReactNode }) {
   return (
-    <Suspense fallback={<TabBar pathname="" />}>
-      <TabBarWithPath />
+    <Suspense fallback={<TabBar pathname="" leadBadge={leadBadge} />}>
+      <TabBarWithPath leadBadge={leadBadge} />
     </Suspense>
   );
 }
 
-function SideNavWithPath() {
-  return <SideNav pathname={usePathname()} />;
+function SideNavWithPath({ leadBadge }: { leadBadge?: ReactNode }) {
+  return <SideNav pathname={usePathname()} leadBadge={leadBadge} />;
 }
 
-function TabBarWithPath() {
-  return <TabBar pathname={usePathname()} />;
+function TabBarWithPath({ leadBadge }: { leadBadge?: ReactNode }) {
+  return <TabBar pathname={usePathname()} leadBadge={leadBadge} />;
 }
 
-function LeadCount({ className }: { className?: string }) {
-  const localLeads = leadsStore.use();
-  if (localLeads.length === 0) return null;
-  return (
-    <span className={cn("rounded-full bg-gold px-1.5 text-[0.6875rem] leading-4 font-bold text-night", className)}>
-      {localLeads.length}
-    </span>
-  );
-}
-
-function SideNav({ pathname }: { pathname: string }) {
+function SideNav({ pathname, leadBadge }: { pathname: string; leadBadge?: ReactNode }) {
   return (
     <div className="tone-dark flex h-full min-h-dvh flex-col bg-night">
       <div className="px-6 py-7">
@@ -78,7 +68,7 @@ function SideNav({ pathname }: { pathname: string }) {
                 >
                   <Icon size={18} className={active ? "text-gold" : undefined} />
                   {label}
-                  {href === "/panel/talepler" ? <LeadCount className="ml-auto" /> : null}
+                  {href === "/panel/talepler" ? leadBadge : null}
                 </Link>
               </li>
             );
@@ -87,17 +77,23 @@ function SideNav({ pathname }: { pathname: string }) {
       </nav>
       <div className="space-y-4 border-t border-night-line p-6">
         <div className="rounded-xl bg-white/5 p-4 text-xs leading-relaxed text-muted">
-          <strong className="text-gold">Demo panel.</strong> Gerçek sürümde Payload CMS içinde rol bazlı erişimle çalışır.
+          <strong className="text-gold">Gelen talepler ve randevular gerçektir</strong> (veritabanında saklanır).
+          İlan ve CRM verisi hâlâ örnektir.
         </div>
         <Link href="/" className="flex items-center gap-2 text-sm text-muted hover:text-gold">
           Siteye dön <ArrowUpRight size={14} />
         </Link>
+        <form action={panelLogout}>
+          <button type="submit" className="flex items-center gap-2 text-sm text-muted hover:text-gold">
+            <LogOut size={14} /> Çıkış yap
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
-function TabBar({ pathname }: { pathname: string }) {
+function TabBar({ pathname, leadBadge }: { pathname: string; leadBadge?: ReactNode }) {
   return (
     <nav
       aria-label="Panel menüsü"
@@ -118,7 +114,7 @@ function TabBar({ pathname }: { pathname: string }) {
               >
                 <Icon size={20} className={active ? "text-gold" : undefined} />
                 {short}
-                {href === "/panel/talepler" ? <LeadCount className="absolute top-1.5 left-1/2 ml-2" /> : null}
+                {href === "/panel/talepler" ? leadBadge : null}
                 {active ? <span aria-hidden className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-gold" /> : null}
               </Link>
             </li>

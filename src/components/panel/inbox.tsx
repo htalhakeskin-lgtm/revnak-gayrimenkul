@@ -1,92 +1,141 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { appointmentsStore, clicksStore, leadsStore } from "@/lib/demo-store";
+import { Inbox as InboxIcon } from "lucide-react";
+import { clicksStore } from "@/lib/demo-store";
 import { useHydrated } from "@/lib/hooks";
 import { FeedIcon, useLocalFeed } from "./local-feed";
 
-type MockLead = { id: string; name: string; source: string; interest: string; agent: string; when: string; stage: string };
+export interface RealLeadRow {
+  id: string;
+  ref: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  kindLabel: string;
+  detail: string;
+  message: string | null;
+  when: string;
+}
 
-/** Gelen talepler (M09 → M10): bu tarayıcıdaki gönderimler + örnek kayıtlar */
-export function Inbox({ mock }: { mock: MockLead[] }) {
+export interface SampleLeadRow {
+  id: string;
+  name: string;
+  source: string;
+  interest: string;
+  agent: string;
+  when: string;
+  stage: string;
+}
+
+const kindTone: Record<string, string> = {
+  "Değerleme talebi": "bg-gold/25 text-gold-ink",
+  "Portföy başvurusu": "bg-success/15 text-success",
+  "İlan bilgi talebi": "bg-accent/12 text-accent",
+  "İletişim formu": "bg-ink/8 text-ink",
+};
+
+/** Gelen talepler (M09 → M10): gerçek veritabanı kayıtları + (ayrı bölümde) örnek veri */
+export function Inbox({ real, sample }: { real: RealLeadRow[]; sample: SampleLeadRow[] }) {
   const hydrated = useHydrated();
-  const local = useLocalFeed();
+  const clicks = clicksStore.use();
+  const localFeed = useLocalFeed();
 
   return (
-    <div className="grid gap-6 xl:grid-cols-5">
-      <section className="rounded-[20px] border border-line bg-raised p-5 sm:p-6 xl:col-span-2" aria-labelledby="local-title">
-        <div className="flex items-center justify-between gap-4">
-          <h2 id="local-title" className="font-semibold">
-            Sizin demo işlemleriniz
+    <div className="space-y-10">
+      <section aria-labelledby="real-title">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 id="real-title" className="flex items-center gap-2 font-semibold">
+            Gerçek talepler
+            <span className="rounded-full bg-success/15 px-2 py-0.5 text-[0.625rem] font-bold text-success uppercase">
+              Veritabanı
+            </span>
           </h2>
-          {local.length ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                leadsStore.set([]);
-                clicksStore.set([]);
-                appointmentsStore.set([]);
-              }}
-            >
-              Temizle
-            </Button>
-          ) : null}
+          <span className="text-sm text-fg-muted">{real.length} kayıt</span>
         </div>
+
+        {real.length === 0 ? (
+          <div className="rounded-[20px] border border-dashed border-line bg-raised p-8 text-center">
+            <InboxIcon size={28} className="mx-auto text-fg-muted" aria-hidden />
+            <p className="mt-3 font-semibold">Henüz gerçek talep yok</p>
+            <p className="mx-auto mt-1 max-w-sm text-sm text-fg-muted">
+              Sitede iletişim, ilan bilgi, portföy veya değerleme formu gönderildiğinde burada listelenir.
+            </p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-line rounded-[20px] border border-line bg-raised">
+            {real.map((r) => (
+              <li key={r.id} className="p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold">{r.name}</p>
+                    <p className="text-sm text-fg-muted">
+                      {r.phone}
+                      {r.email ? ` · ${r.email}` : ""}
+                    </p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${kindTone[r.kindLabel] ?? "bg-sand text-ink"}`}>
+                    {r.kindLabel}
+                  </span>
+                </div>
+                {r.detail ? <p className="mt-2 text-sm">{r.detail}</p> : null}
+                {r.message ? <p className="mt-1 text-sm text-fg-muted italic">“{r.message}”</p> : null}
+                <div className="mt-3 flex items-center justify-between text-xs text-fg-muted">
+                  <span>{r.when}</span>
+                  <span className="tabular">{r.ref}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section aria-labelledby="clicks-title">
+        <h2 id="clicks-title" className="mb-4 font-semibold">
+          Bu tarayıcıdaki WhatsApp / telefon ilgisi
+        </h2>
         {!hydrated ? (
-          <div className="mt-4 h-40 animate-pulse rounded-[14px] bg-sand/60" aria-hidden />
-        ) : local.length ? (
-          <ul className="mt-2 divide-y divide-line">
-            {local.map((item) => (
-              <li key={item.id} className="flex items-start gap-3 py-3">
+          <div className="h-24 animate-pulse rounded-[14px] bg-sand/60" aria-hidden />
+        ) : clicks.length === 0 ? (
+          <p className="rounded-[14px] bg-sand/60 p-4 text-sm text-fg-muted">
+            Henüz WhatsApp veya telefon butonuna tıklanmadı. Bu veri şimdilik yalnızca sizin tarayıcınızda tutuluyor,
+            veritabanına kaydedilmiyor.
+          </p>
+        ) : (
+          <ul className="divide-y divide-line rounded-[14px] border border-line bg-raised">
+            {localFeed.map((item) => (
+              <li key={item.id} className="flex items-center gap-3 px-4 py-3">
                 <FeedIcon icon={item.icon} />
-                <div>
-                  <p className="text-sm">{item.text}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm">{item.text}</p>
                   <p className="text-xs text-fg-muted">{item.time}</p>
                 </div>
               </li>
             ))}
           </ul>
-        ) : (
-          <div className="mt-4 rounded-[14px] bg-sand/60 p-5 text-sm leading-relaxed text-fg-muted">
-            Henüz bir işlem yok. Sitede bir{" "}
-            <Link href="/iletisim" className="text-accent underline">
-              form gönderin
-            </Link>
-            ,{" "}
-            <Link href="/randevu" className="text-accent underline">
-              randevu alın
-            </Link>{" "}
-            ya da bir ilanda WhatsApp butonuna dokunun; burada anında görünür.
-          </div>
         )}
-        <p className="mt-4 text-xs text-fg-muted">Bu kayıtlar yalnızca sizin tarayıcınızda saklanır.</p>
       </section>
 
-      <section className="rounded-[20px] border border-line bg-raised xl:col-span-3" aria-labelledby="mock-title">
-        <h2 id="mock-title" className="p-5 pb-2 font-semibold sm:p-6 sm:pb-2">
-          Son talepler (örnek)
+      <section aria-labelledby="mock-title">
+        <h2 id="mock-title" className="mb-4 flex items-center gap-2 font-semibold text-fg-muted">
+          Örnek talepler
+          <span className="rounded-full bg-sand px-2 py-0.5 text-[0.625rem] font-bold uppercase">Örnek veri</span>
         </h2>
-        {/* Mobil: kart listesi */}
-        <ul className="divide-y divide-line md:hidden">
-          {mock.map((m) => (
-            <li key={m.id} className="px-5 py-4">
-              <div className="flex items-start justify-between gap-3">
-                <p className="font-semibold">{m.name}</p>
-                <span className="shrink-0 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold">{m.stage}</span>
-              </div>
-              <p className="mt-1 text-sm">{m.interest}</p>
-              <p className="mt-1 text-xs text-fg-muted">
-                {m.source} · {m.agent} · {m.when}
-              </p>
-            </li>
-          ))}
-        </ul>
-
-        {/* Masaüstü: tablo */}
-        <div className="hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[620px] text-left text-sm">
+        <div className="overflow-x-auto rounded-[20px] border border-line bg-raised">
+          <ul className="divide-y divide-line md:hidden">
+            {sample.map((m) => (
+              <li key={m.id} className="px-5 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-semibold">{m.name}</p>
+                  <span className="shrink-0 rounded-full bg-sand px-2.5 py-1 text-xs font-semibold">{m.stage}</span>
+                </div>
+                <p className="mt-1 text-sm">{m.interest}</p>
+                <p className="mt-1 text-xs text-fg-muted">
+                  {m.source} · {m.agent} · {m.when}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <table className="hidden w-full min-w-[620px] text-left text-sm md:table">
             <thead className="text-xs text-fg-muted">
               <tr className="border-b border-line">
                 <th scope="col" className="px-6 py-3 font-medium">Kişi</th>
@@ -97,7 +146,7 @@ export function Inbox({ mock }: { mock: MockLead[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {mock.map((m) => (
+              {sample.map((m) => (
                 <tr key={m.id}>
                   <td className="px-6 py-3">
                     <p className="font-semibold">{m.name}</p>

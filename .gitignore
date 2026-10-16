@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,13 +40,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-.gstack/
 
 # MapLibre worker (prebuild ile kopyalanır)
 /public/vendor
 
-# gstack tarayıcı aracı kayıtları
+# yerel araçlar (tarayıcı testi, yapay zekâ yetenekleri) ve kişisel portfolyo dosyaları
 .gstack/
-
-.vercel
-.env*
+.agents/
+.claude/
+skills-lock.json
+/portfolio/

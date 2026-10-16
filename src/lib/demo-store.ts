@@ -61,18 +61,6 @@ function createStore<T>(key: string, fallback: T) {
 
 // ---------------------------------------------------------------- Tipler
 
-export interface DemoLead {
-  id: string;
-  kind: "iletisim" | "ilan-bilgi" | "portfoy" | "degerleme";
-  name: string;
-  phone: string;
-  email?: string;
-  message?: string;
-  listingNo?: string;
-  createdAt: string; // ISO zaman damgası (tarayıcıda üretilir)
-  ref: string;
-}
-
 export interface DemoAppointment {
   id: string;
   ref: string;
@@ -104,14 +92,12 @@ export interface CookieConsent {
 // ---------------------------------------------------------------- Depolar
 
 const emptyStrings: string[] = [];
-const emptyLeads: DemoLead[] = [];
 const emptyAppointments: DemoAppointment[] = [];
 const emptyClicks: DemoClick[] = [];
 const defaultConsent: CookieConsent = { decided: false, analytics: false, marketing: false };
 
 export const favoritesStore = createStore<string[]>("favoriler", emptyStrings);
 export const compareStore = createStore<string[]>("karsilastir", emptyStrings);
-export const leadsStore = createStore<DemoLead[]>("talepler", emptyLeads);
 export const appointmentsStore = createStore<DemoAppointment[]>("randevular", emptyAppointments);
 export const clicksStore = createStore<DemoClick[]>("tiklamalar", emptyClicks);
 export const consentStore = createStore<CookieConsent>("cerez-izni", defaultConsent);

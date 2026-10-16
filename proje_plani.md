@@ -2,7 +2,7 @@
 
 | Alan | Bilgi |
 |---|---|
-| Doküman sürümü | v0.4 (marka: Revnak, gerçek iletişim bilgileri, Vercel'de canlı) |
+| Doküman sürümü | v0.5 (talepler ve randevular gerçek veritabanında, parola korumalı panel, GitHub'da açık depo) |
 | Tarih | 16 Ekim 2026 |
 | Durum | **Demo (vitrin) sürümü geliştiriliyor** (Bölüm 20); kalan sorular Bölüm 15'te |
 | Yayın | **Vercel** (gösterim amaçlı demo, `*.vercel.app`) |
@@ -11,7 +11,7 @@
 
 > Bu doküman projenin "anayasası"dır. Her karar **Bölüm 16 – Karar Günlüğü**'ne işlenir; geliştirme sırasında bu dosyaya aykırı bir şey yapılacaksa önce dosya güncellenir.
 
-> **Güncel durum (v0.3):** Proje şu an **tamamen gösterim (demo) amaçlı** geliştiriliyor ve Vercel'de yayınlanacak (K9). Demo kapsamı, sadeleştirilmiş mimari, iş paketleri ve yayın adımları **Bölüm 20**'dedir. Bölüm 3–19 gerçek (üretim) sürümün hedef mimarisini anlatır ve demodan üretime geçişte referans olarak korunur.
+> **Güncel durum (v0.5):** Proje **gösterim (demo) amaçlıdır** ve Vercel'de canlıdır (K9, K19). Vitrin içeriği (ilan, bölge, danışman, blog) statik örnek veridir; formlar, randevular ve ofis paneli girişi gerçek altyapıyla çalışır (K20). Kaynak kod GitHub'da herkese açıktır (K21). Demo kapsamı, sadeleştirilmiş mimari, iş paketleri ve yayın adımları **Bölüm 20**'dedir. Bölüm 3–19 gerçek (üretim) sürümün hedef mimarisini anlatır ve demodan üretime geçişte referans olarak korunur.
 
 ---
 
@@ -804,6 +804,8 @@ Son 2 sürüm: Chrome, Safari (iOS dahil), Edge, Firefox, Samsung Internet. Test
 | K17 | 16.10.2026 | Marka adı **"Revnak Gayrimenkul"** (eski Türkçe *revnak*: parıltı, ışıltı; ilk demo adı "Meridyen" yerine). İlan no öneki `RVK-`. Logo: çember içinde altın ışıltı işareti. Bölge İstanbul (Boğaz + Anadolu yakası) ve Bodrum | S5/S6 cevaplanana kadar. Tüm firma bilgileri tek dosyadan (`src/lib/site-config.ts`) değişir |
 | K18 | 16.10.2026 | Ofis telefonu ve WhatsApp **gerçek**: 0542 311 58 88; Instagram **@talla.ks**. Tüm danışman iletişimi ofis hattına yönlenir; e-posta, adres ve yetki belgesi no örnek kalır (e-posta demo penceresi açar). K15'in iletişim kısmı bu kararla güncellendi | Ziyaretçiler gerçekten ulaşabilsin; kurgusal danışman numaraları rastgele kişilere gitmesin. Site hâlâ `noindex` ve demo şeritli |
 | K19 | 16.10.2026 | Site Vercel'de canlı (CLI ile, `htalhakeskin-5600` hesabı, proje `revnak-gayrimenkul`). Yerel çalıştırma için Docker Compose projesi `gayrimenkul-site` | Kullanıcı canlıya alma yetkisi verdi. Otomatik dağıtım için GitHub bağlantısı sonraki adım |
+| K20 | 16.10.2026 | Talepler ve randevular **gerçek veritabanında**: Neon Postgres (Vercel Marketplace, ücretsiz katman) + Drizzle ORM (`src/db/`). `/panel` tek parolayla korunur: bcrypt hash'i `PANEL_PASSWORD_HASH_B64` (Base64, bkz. CLAUDE.md), imzalı JWT oturum çerezi (`SESSION_SECRET`), denetim `src/proxy.ts`. Randevu çakışması sunucuda veritabanına karşı kontrol edilir; formdaki dolu saatler `/api/randevu/dolu`'dan gelir. İlan, bölge, danışman, blog ve CRM verisi statik kalır. K10'u bu kapsamda günceller | Kullanıcı panelin gerçekten çalışmasını istedi. Ücretsiz katman yeterli; vitrin içeriği ve veri katmanı imzaları değişmedi |
+| K21 | 16.10.2026 | Kaynak kod GitHub'da **herkese açık** depo: https://github.com/htalhakeskin-lgtm/revnak-gayrimenkul. Gizli bilgiler yalnızca ortam değişkenlerinde (`.env*` depoda yok) | Kullanıcı portfolyo için açık depo istedi |
 
 ---
 
@@ -949,7 +951,7 @@ Kısıtlar: Yeni kütüphane ekleme. Mevcut tasarım token'larını kullan.
 
 ### 20.1 Amaç ve ilkeler
 - Sitenin **görünüşünü, hissini (animasyonlar) ve temel akışlarını** (ara → incele → iletişim/randevu; ofis tarafında pano → CRM → takvim) gerçek altyapı kurmadan göstermek.
-- Vercel'e **ortam değişkeni ve ücretli servis olmadan** yayınlanabilmek.
+- Vercel'e **ücretli servis olmadan** yayınlanabilmek. Gerçek kayıt için yalnızca Neon'un ücretsiz katmanı ve üç ortam değişkeni gerekir (K20, 20.6).
 - Demo kodu çöpe gitmez: tasarım sistemi, bileşenler, sayfa yapısı ve URL'ler üretimde aynen kullanılır; sadece **veri katmanı** değişir (20.8).
 - Bölüm 4 (tasarım + animasyon kuralları), Bölüm 11 (kod standartları, performans bütçesi) ve Bölüm 12 (içerik üslubu) demoda da geçerlidir.
 
@@ -957,11 +959,11 @@ Kısıtlar: Yeni kütüphane ekleme. Mevcut tasarım token'larını kullan.
 | Konu | Üretim hedefi (Bölüm 3) | Demo |
 |---|---|---|
 | Çatı | Next.js + TypeScript | **Next.js 16.4** (App Router, Cache Components) + TypeScript strict |
-| Veri | Payload CMS + Neon PostgreSQL | `src/data/*.ts` tipli örnek veri; sayfalar veriye yalnızca `src/lib/data.ts` üzerinden erişir |
-| Admin | Payload admin + özel ekranlar | `/panel`: örnek veriyle çalışan **ofis paneli vitrini** (pano, ilanlar, CRM hunisi, randevu takvimi, gelen talepler) |
-| Formlar | Server Action → DB + e-posta | Server Action + **Zod doğrulama (gerçek)**; kalıcı kayıt yok. Gönderilen talep tarayıcıda saklanır ve `/panel` → "Gelen talepler"de görünür |
-| Randevu | DB, çakışma kontrolü, e-posta | Örnek doluluk + tarayıcıdaki randevular ile çakışma kontrolü, `.ics` takvim dosyası indirme |
-| Üyelik / Favori | Hesap + DB | Giriş yok. Favoriler ve karşılaştırma tarayıcıda (localStorage) |
+| Veri | Payload CMS + Neon PostgreSQL | Vitrin içeriği `src/data/*.ts` tipli örnek veri; talepler ve randevular **Neon Postgres + Drizzle** (K20). Sayfalar veriye yalnızca `src/lib/data.ts` üzerinden erişir |
+| Admin | Payload admin + özel ekranlar | `/panel`: **parola korumalı ofis paneli** (pano, ilanlar, CRM hunisi, randevu takvimi, gelen talepler). Talepler ve randevular gerçek; ilan istatistikleri ve CRM örnek (K20) |
+| Formlar | Server Action → DB + e-posta | Server Action + **Zod doğrulama** + veritabanı kaydı (K20); `/panel/talepler`'de görünür. E-posta/SMS bildirimi ve Turnstile henüz yok |
+| Randevu | DB, çakışma kontrolü, e-posta | Örnek doluluk + **veritabanındaki onaylı randevular** (sunucuda çakışma kontrolü, formda dolu saatler), `.ics` takvim dosyası. E-posta yok |
+| Üyelik / Favori | Hesap + DB | Ziyaretçi üyeliği yok; favoriler ve karşılaştırma tarayıcıda (localStorage). Panel tek parolayla (K20) |
 | WhatsApp / Telefon / E-posta | Gerçek numaralar | WhatsApp ve telefon gerçek ofis hattına gider, ilan no'lu hazır mesajla (K18). E-posta örnek olduğu için "demo eylem" penceresi açar (K15) |
 | Instagram / Google yorumları | Resmî API'ler | Örnek gönderi ve yorumlar (statik veri) |
 | Görseller | R2 + sharp | Unsplash + imgix yükleyici (K12) |
@@ -970,7 +972,7 @@ Kısıtlar: Yeni kütüphane ekleme. Mevcut tasarım token'larını kullan.
 | Analitik | GA4 + Pixel + Clarity (izinli) | Yüklenmez; çerez izni bandı arayüz olarak çalışır |
 | SEO | Tam | Meta, OG görseli, schema.org, sitemap üretilir; ancak site `noindex` (K15) |
 | Animasyon | Motion + GSAP + Lenis | Motion + Lenis (K14) |
-| Barındırma | Vercel + Neon + R2 | Sadece Vercel (fra1). İsteğe bağlı Docker (K16) |
+| Barındırma | Vercel + Neon + R2 | Vercel (fra1) + Neon Postgres (K20). İsteğe bağlı Docker (K16) |
 
 ### 20.3 Kurgu ve demo varsayımları (K17)
 - Marka: **Revnak Gayrimenkul** (K17). Ad, slogan, iletişim, yetki belgesi no vb. `src/lib/site-config.ts` dosyasından tek yerden değişir.
@@ -995,7 +997,7 @@ Kısıtlar: Yeni kütüphane ekleme. Mevcut tasarım token'larını kullan.
 | Hesaplayıcılar | `/hesaplayicilar` | Kredi, tapu masrafı, kira getirisi (üretimde F2) |
 | Favoriler / Karşılaştır | `/favoriler`, `/karsilastir` | Tarayıcıda saklanır |
 | Yasal | `/kvkk`, `/cerez-politikasi`, `/kullanim-kosullari` | **Örnek metin**, hukuki geçerliliği yok |
-| Ofis paneli vitrini | `/panel` (+ alt sayfalar) | Giriş yok, `noindex` |
+| Ofis paneli | `/panel` (+ alt sayfalar), `/panel/giris` | Parola korumalı (K20), `noindex` |
 
 ### 20.5 Demo iş paketleri ve durum
 | No | Paket | Durum |
@@ -1017,28 +1019,34 @@ Kısıtlar: Yeni kütüphane ekleme. Mevcut tasarım token'larını kullan.
 | D-15 | SEO (meta, OG görseli, schema.org, sitemap, robots), PWA manifest, 404 | ✅ |
 | D-16 | Kalite: lint, tip kontrolü, birim testleri (hesaplayıcı, filtre), production build, tarayıcı kontrolü | ✅ |
 | D-17 | Yayın hazırlığı: `vercel.json` (fra1), Dockerfile, README | ✅ |
+| D-18 | Gerçek altyapı (K20): Neon Postgres + Drizzle, formların ve randevuların kaydı, veritabanına karşı çakışma kontrolü, parola korumalı panel | ✅ |
+| D-19 | GitHub'da açık depo (K21), README ekran görüntüleri | ✅ |
 
 Durum işaretleri: ✅ bitti · 🔄 devam ediyor · ⏳ sırada. Ayrıntılı ilerleme `docs/ilerleme.md`'dedir.
 
 ### 20.6 Vercel'e yayın adımları
 
 > **Canlı adres (K19):** https://revnak-gayrimenkul.vercel.app — Vercel projesi `talha-keskin/revnak-gayrimenkul`.
-> Yeni sürüm yayınlamak için: `npm run deploy` (Vercel CLI, giriş yapılmış hesapla). Otomatik dağıtım için aşağıdaki GitHub adımları önerilir.
+> **Kaynak kod (K21):** https://github.com/htalhakeskin-lgtm/revnak-gayrimenkul
+> Yeni sürüm yayınlamak için: `npm run deploy` (Vercel CLI, giriş yapılmış hesapla).
 
-1. GitHub'da **özel** bir depo oluşturun ve kodu gönderin (`git push`).
-2. vercel.com → **Add New → Project** → depoyu seçin. Framework otomatik "Next.js" algılanır.
-3. Ortam değişkeni **gerekmez** → **Deploy**.
-4. Fonksiyon bölgesi `vercel.json` ile Frankfurt'tur (`fra1`).
-5. Demo için Vercel'in verdiği `*.vercel.app` adresi yeterlidir. Her `git push` otomatik yeni sürüm, her dal otomatik önizleme bağlantısı üretir.
+Sıfırdan kurulum:
+1. vercel.com → **Add New → Project** → GitHub deposunu seçin. Framework otomatik "Next.js" algılanır.
+2. **Storage → Neon** ile ücretsiz bir Postgres veritabanı bağlayın; `DATABASE_URL` otomatik eklenir.
+3. Ortam değişkenlerini ekleyin (Production, Preview, Development):
+   - `SESSION_SECRET`: en az 32 karakterlik rastgele dize (ör. `openssl rand -base64 32`).
+   - `PANEL_PASSWORD_HASH_B64`: panel parolasının bcrypt hash'inin **Base64** hâli (README → "Panel parolası").
+4. Tabloları oluşturun: `.env.local` içinde `DATABASE_URL` varken `npx drizzle-kit push`.
+5. **Deploy**. Fonksiyon bölgesi `vercel.json` ile Frankfurt'tur (`fra1`). Her `git push` otomatik yeni sürüm, her dal önizleme bağlantısı üretir.
 
 ### 20.7 Docker (opsiyonel, K16)
-- `Dockerfile` (çok aşamalı, Next.js `standalone` çıktısı) ile site Vercel dışında da çalışır:
-  `docker build -t meridyen-demo .` → `docker run -p 3000:3000 meridyen-demo`
-- Üretim sürümünde yerel geliştirme için `docker-compose.yml` eklenecek: PostgreSQL + PostGIS ve Meilisearch (Bölüm 3). Demoda gerekmez.
+- `Dockerfile` (çok aşamalı, Next.js `standalone` çıktısı) ve `docker-compose.yml` ile site Vercel dışında da çalışır:
+  `docker compose up -d --build` → http://localhost:3050 (Docker Desktop'ta `gayrimenkul-site`).
+- Konteyner ortam değişkenlerini `.env.local` dosyasından okur; dosya yoksa site açılır ama formlar ve panel girişi çalışmaz.
 
 ### 20.8 Demodan üretime geçiş yolu
 1. `src/lib/data.ts` içindeki fonksiyonlar Payload Local API çağrılarıyla değiştirilir; fonksiyon imzaları aynı kalır, sayfalar değişmez.
-2. Formların server action'larına veritabanı kaydı, e-posta bildirimi ve Turnstile eklenir; tarayıcıdaki demo depoları kaldırılır.
+2. Formların veritabanı kaydı yapıldı (K20); e-posta bildirimi ve Turnstile eklenir, talepler ve randevular Payload koleksiyonlarına taşınır.
 3. `/panel` vitrini, Payload admin içindeki özel ekranlara (CRM panosu, takvim) tasarım referansı olur.
 4. `siteConfig.demo = false` → `noindex` kalkar, gerçek telefon/WhatsApp/e-posta bağlantıları devreye girer, demo şeridi kaybolur.
 5. Unsplash görselleri gerçek ilan fotoğraflarıyla, kurgusal metinler gerçek içerikle değiştirilir; ardından Bölüm 10'daki Faz 1 kabul kriterleri uygulanır.
