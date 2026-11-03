@@ -5,6 +5,7 @@ import { InstagramIcon, LinkedInIcon, YouTubeIcon } from "@/components/ui/brand-
 import { footerNav, legalNav, siteConfig } from "@/lib/site-config";
 import { Logo } from "./logo";
 import { NewsletterForm } from "./newsletter-form";
+import { SiteCredit } from "./site-credit";
 
 export function SiteFooter() {
   const { contact } = siteConfig;
@@ -125,6 +126,7 @@ export function SiteFooter() {
               </Link>
             </li>
           </ul>
+          <SiteCredit />
         </div>
       </div>
     </footer>
